@@ -24,6 +24,11 @@ export default function Home() {
   const [negotiationStage, setNegotiationStage] = useState(0);
   const [contactDetails, setContactDetails] = useState<any>(null);
   const [showContactDetails, setShowContactDetails] = useState(false);
+  const [selectedMatches, setSelectedMatches] = useState<any[]>([]);
+  const [multiNegotiation, setMultiNegotiation] = useState<any>(null);
+  const [locationRadius, setLocationRadius] = useState("25");
+  const [availableTimeSlots, setAvailableTimeSlots] = useState<string[]>([]);
+  const [selectedTimeSlot, setSelectedTimeSlot] = useState("");
 
   // Category options for dropdown
   const categoryOptions = [
@@ -382,16 +387,20 @@ export default function Home() {
   };
 
   const sendDealEmails = async (product: any, finalPrice: number) => {
-    // Simulate email sending
-    const sellerEmail = "vineethsai4444@gmail.com";
-    const buyerEmail = "sachinjn200@gmail.com";
+    // Use testing email for both buyer and seller as requested
+    const testingEmail = "vineethsai4444@gmail.com";
     
     showNotification(`📧 Sending confirmation emails to buyer and seller...`, "info");
     
     // Simulate API call delay
     await new Promise(resolve => setTimeout(resolve, 1500));
     
-    showNotification(`✅ Deal confirmed! Emails sent to ${buyerEmail} and ${sellerEmail}`, "success");
+    showNotification(`✅ Deal confirmed! Emails sent to ${testingEmail} (buyer & seller)`, "success");
+    
+    // Show detailed email content
+    setTimeout(() => {
+      showNotification(`📧 Email Details: Product: ${product.makeModel}, Final Price: $${finalPrice}, Pickup: ${product.location.address}`, "info");
+    }, 2000);
   };
 
   const getFilteredProducts = () => {
@@ -1033,7 +1042,7 @@ export default function Home() {
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-3 gap-3">
                       <div>
                         <label className="block font-semibold mb-2">Min Price ($)</label>
                         <input
@@ -1051,6 +1060,16 @@ export default function Home() {
                           value={maxPrice}
                           onChange={(e) => setMaxPrice(e.target.value)}
                           placeholder="1000"
+                          className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
+                        />
+                      </div>
+                      <div>
+                        <label className="block font-semibold mb-2">Radius (miles)</label>
+                        <input
+                          type="number"
+                          value={locationRadius}
+                          onChange={(e) => setLocationRadius(e.target.value)}
+                          placeholder="25"
                           className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
                         />
                       </div>

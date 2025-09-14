@@ -20,6 +20,10 @@ export default function Home() {
   const [matchingStage, setMatchingStage] = useState("");
   const [matches, setMatches] = useState<any[]>([]);
   const [showMatches, setShowMatches] = useState(false);
+  const [activeNegotiation, setActiveNegotiation] = useState<any>(null);
+  const [negotiationStage, setNegotiationStage] = useState(0);
+  const [contactDetails, setContactDetails] = useState<any>(null);
+  const [showContactDetails, setShowContactDetails] = useState(false);
 
   // Category options for dropdown
   const categoryOptions = [
@@ -326,23 +330,68 @@ export default function Home() {
     return reasons.slice(0, 3); // Show top 3 reasons
   };
 
-  const handleStartNegotiation = (product: any) => {
-    showNotification(`🤝 Starting negotiation for ${product.makeModel}! AI agent will handle the process.`, "success");
-    setTimeout(() => {
-      showNotification(`💬 Negotiation in progress... Current offer: $${product.currentPrice - 50}`, "info");
-    }, 2000);
-    setTimeout(() => {
-      showNotification(`✅ Negotiation successful! Final price: $${product.currentPrice - 75}`, "success");
-    }, 5000);
+  const handleStartNegotiation = async (product: any) => {
+    setActiveNegotiation(product);
+    setNegotiationStage(1);
+    
+    // Stage 1: Initial offer
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    setNegotiationStage(2);
+    
+    // Stage 2: Counter offer
+    await new Promise(resolve => setTimeout(resolve, 2500));
+    setNegotiationStage(3);
+    
+    // Stage 3: Final agreement
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    setNegotiationStage(4);
+    
+    // Send emails after successful negotiation
+    await sendDealEmails(product, product.currentPrice - 75);
   };
 
   const handleContactSeller = (product: any) => {
     const seller = users.find(u => u._id === product.sellerId);
-    const sellerName = seller ? seller.name : "Seller";
-    showNotification(`📧 Contacting ${sellerName} about ${product.makeModel}. Message sent!`, "success");
+    setContactDetails({
+      product,
+      seller,
+      messages: [
+        {
+          from: "buyer",
+          message: `Hi! I'm interested in your ${product.makeModel}. Is it still available?`,
+          timestamp: new Date().toLocaleTimeString()
+        }
+      ]
+    });
+    setShowContactDetails(true);
+    
+    // Simulate seller response
     setTimeout(() => {
-      showNotification(`📱 ${sellerName} responded! They're available for pickup today.`, "info");
+      setContactDetails((prev: any) => ({
+        ...prev,
+        messages: [
+          ...prev.messages,
+          {
+            from: "seller",
+            message: `Yes, it's still available! It's in ${product.condition} condition. Would you like to see more photos or arrange a meetup?`,
+            timestamp: new Date().toLocaleTimeString()
+          }
+        ]
+      }));
     }, 3000);
+  };
+
+  const sendDealEmails = async (product: any, finalPrice: number) => {
+    // Simulate email sending
+    const sellerEmail = "vineethsai4444@gmail.com";
+    const buyerEmail = "sachinjn200@gmail.com";
+    
+    showNotification(`📧 Sending confirmation emails to buyer and seller...`, "info");
+    
+    // Simulate API call delay
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    
+    showNotification(`✅ Deal confirmed! Emails sent to ${buyerEmail} and ${sellerEmail}`, "success");
   };
 
   const getFilteredProducts = () => {
@@ -397,11 +446,6 @@ export default function Home() {
     e.preventDefault();
     const formData = new FormData(e.target as HTMLFormElement);
     
-    if (!selectedSeller) {
-      showNotification("Please select a seller first", "error");
-      return;
-    }
-    
     const newProduct = {
       _id: Date.now().toString(),
       makeModel: formData.get('makeModel') as string,
@@ -418,7 +462,7 @@ export default function Home() {
       images: ['📦'],
       status: "active",
       createdAt: Date.now(),
-      sellerId: selectedSeller
+      sellerId: "seller1" // Default single seller account
     };
 
     setProducts([...products, newProduct]);
@@ -621,31 +665,6 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Database Controls */}
-        <div className="bg-gradient-to-r from-gray-50 to-white p-6 m-6 rounded-xl border border-gray-200/50 shadow-lg transition-all duration-500 hover:shadow-xl">
-          <h3 className="text-xl font-bold mb-4 text-gray-800 flex items-center gap-2">
-            Database Management
-            <div className="h-px bg-gradient-to-r from-gray-300 to-transparent flex-1 ml-4"></div>
-          </h3>
-          <div className="flex flex-wrap gap-4 items-center justify-center">
-            <button 
-              className="bg-slate-700 hover:bg-slate-800 text-white px-6 py-3 rounded-lg transition-all duration-300 font-medium shadow-lg hover:shadow-xl transform hover:scale-105"
-              onClick={() => showNotification("Data refreshed!", "success")}
-            >
-              Refresh Data
-            </button>
-            <button 
-              className="bg-slate-600 hover:bg-slate-700 text-white px-6 py-3 rounded-lg transition-all duration-300 font-medium shadow-lg hover:shadow-xl transform hover:scale-105"
-              onClick={() => showNotification("Database seeded with sample data!", "success")}
-            >
-              Seed Database
-            </button>
-            <div className="text-sm text-gray-700 bg-white px-4 py-2 rounded-lg border border-gray-200 transition-all duration-300">
-              Products: <span className="font-bold text-gray-800">{products.length}</span> |
-              Users: <span className="font-bold text-gray-800">{users.length}</span>
-            </div>
-          </div>
-        </div>
 
 
         {/* Profile Selector */}
@@ -726,21 +745,6 @@ export default function Home() {
                     </div>
                   </div>
 
-                  <div className="mb-6">
-                    <label className="block font-semibold mb-3 text-slate-800">Select Seller Account</label>
-                    <select 
-                      value={selectedSeller}
-                      onChange={(e) => handleSellerChange(e.target.value)}
-                      className="w-full p-4 border border-slate-200 rounded-xl focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none bg-white/80 backdrop-blur-sm shadow-sm transition-all duration-200"
-                    >
-                      <option value="">Choose existing seller...</option>
-                      {users.filter(u => u.role === 'seller').map(seller => (
-                        <option key={seller._id} value={seller._id}>
-                          {seller.name} ({seller.email})
-                        </option>
-                      ))}
-                    </select>
-                  </div>
 
                   {/* Product Creation Form */}
                   <form onSubmit={handleCreateListing} className="space-y-4 mt-6">
@@ -894,13 +898,25 @@ export default function Home() {
 
                     <div>
                       <label className="block font-semibold mb-2">Pickup Location</label>
-                      <input
-                        type="text"
+                      <select
                         name="location"
-                        placeholder="Enter your address or use current location"
                         required
                         className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-green-500 focus:outline-none"
-                      />
+                      >
+                        <option value="">Select pickup location...</option>
+                        <option value="San Francisco, CA">San Francisco, CA</option>
+                        <option value="Palo Alto, CA">Palo Alto, CA</option>
+                        <option value="San Jose, CA">San Jose, CA</option>
+                        <option value="Oakland, CA">Oakland, CA</option>
+                        <option value="Berkeley, CA">Berkeley, CA</option>
+                        <option value="Mountain View, CA">Mountain View, CA</option>
+                        <option value="Sunnyvale, CA">Sunnyvale, CA</option>
+                        <option value="Santa Clara, CA">Santa Clara, CA</option>
+                        <option value="Fremont, CA">Fremont, CA</option>
+                        <option value="San Mateo, CA">San Mateo, CA</option>
+                        <option value="Redwood City, CA">Redwood City, CA</option>
+                        <option value="Cupertino, CA">Cupertino, CA</option>
+                      </select>
                     </div>
 
                     <div>
@@ -1186,6 +1202,164 @@ export default function Home() {
                       <p className="text-gray-600">Please wait while our AI finds the best matches for you</p>
                     </div>
                   )}
+                </div>
+              </div>
+            )}
+
+            {/* Negotiation Process Display */}
+            {activeNegotiation && (
+              <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+                <div className="bg-white rounded-2xl p-8 max-w-2xl w-full max-h-[80vh] overflow-y-auto">
+                  <div className="flex items-center justify-between mb-6">
+                    <h2 className="text-2xl font-bold text-gray-800">AI Negotiation in Progress</h2>
+                    <button 
+                      onClick={() => setActiveNegotiation(null)}
+                      className="text-gray-500 hover:text-gray-700 text-2xl"
+                    >
+                      ×
+                    </button>
+                  </div>
+
+                  <div className="mb-6">
+                    <div className="flex items-center gap-4 mb-4">
+                      <span className="text-4xl">{activeNegotiation.images[0]}</span>
+                      <div>
+                        <h3 className="text-xl font-bold">{activeNegotiation.makeModel}</h3>
+                        <p className="text-gray-600">{activeNegotiation.variant}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    {negotiationStage >= 1 && (
+                      <div className="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-500">
+                        <div className="flex items-center gap-2 mb-2">
+                          <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+                          <span className="font-semibold text-blue-800">Stage 1: Initial Offer</span>
+                        </div>
+                        <p className="text-blue-700">AI Agent: "I'd like to offer ${activeNegotiation.currentPrice - 100} for this {activeNegotiation.makeModel}."</p>
+                      </div>
+                    )}
+
+                    {negotiationStage >= 2 && (
+                      <div className="bg-orange-50 p-4 rounded-lg border-l-4 border-orange-500">
+                        <div className="flex items-center gap-2 mb-2">
+                          <div className="w-3 h-3 bg-orange-500 rounded-full"></div>
+                          <span className="font-semibold text-orange-800">Stage 2: Seller Counter</span>
+                        </div>
+                        <p className="text-orange-700">Seller: "Thanks for your interest! I can do ${activeNegotiation.currentPrice - 50}. It's in great condition."</p>
+                      </div>
+                    )}
+
+                    {negotiationStage >= 3 && (
+                      <div className="bg-purple-50 p-4 rounded-lg border-l-4 border-purple-500">
+                        <div className="flex items-center gap-2 mb-2">
+                          <div className="w-3 h-3 bg-purple-500 rounded-full"></div>
+                          <span className="font-semibold text-purple-800">Stage 3: Final Negotiation</span>
+                        </div>
+                        <p className="text-purple-700">AI Agent: "How about we meet in the middle at ${activeNegotiation.currentPrice - 75}? That works for both of us."</p>
+                      </div>
+                    )}
+
+                    {negotiationStage >= 4 && (
+                      <div className="bg-green-50 p-4 rounded-lg border-l-4 border-green-500">
+                        <div className="flex items-center gap-2 mb-2">
+                          <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                          <span className="font-semibold text-green-800">Stage 4: Deal Agreed!</span>
+                        </div>
+                        <p className="text-green-700">Seller: "Perfect! ${activeNegotiation.currentPrice - 75} works for me. Let's arrange pickup!"</p>
+                        <div className="mt-4 p-4 bg-green-100 rounded-lg">
+                          <h4 className="font-bold text-green-800 mb-2">Deal Summary:</h4>
+                          <p className="text-green-700">Final Price: <span className="font-bold">${activeNegotiation.currentPrice - 75}</span></p>
+                          <p className="text-green-700">You Saved: <span className="font-bold">${75}</span></p>
+                          <p className="text-green-700">Pickup Location: {activeNegotiation.location.address}</p>
+                        </div>
+                      </div>
+                    )}
+
+                    {negotiationStage < 4 && (
+                      <div className="text-center py-4">
+                        <div className="w-8 h-8 border-2 border-blue-300 border-t-blue-600 rounded-full animate-spin mx-auto mb-2"></div>
+                        <p className="text-gray-600">AI is negotiating...</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Contact Seller Details */}
+            {showContactDetails && contactDetails && (
+              <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+                <div className="bg-white rounded-2xl p-8 max-w-2xl w-full max-h-[80vh] overflow-y-auto">
+                  <div className="flex items-center justify-between mb-6">
+                    <h2 className="text-2xl font-bold text-gray-800">Contact Seller</h2>
+                    <button 
+                      onClick={() => setShowContactDetails(false)}
+                      className="text-gray-500 hover:text-gray-700 text-2xl"
+                    >
+                      ×
+                    </button>
+                  </div>
+
+                  <div className="mb-6">
+                    <div className="flex items-center gap-4 mb-4">
+                      <span className="text-4xl">{contactDetails.product.images[0]}</span>
+                      <div>
+                        <h3 className="text-xl font-bold">{contactDetails.product.makeModel}</h3>
+                        <p className="text-gray-600">{contactDetails.product.variant}</p>
+                        <p className="text-lg font-bold text-green-600">${contactDetails.product.currentPrice}</p>
+                      </div>
+                    </div>
+
+                    <div className="bg-gray-50 p-4 rounded-lg">
+                      <h4 className="font-bold mb-2">Seller Information:</h4>
+                      <p><strong>Name:</strong> {contactDetails.seller?.name || "Seller"}</p>
+                      <p><strong>Email:</strong> {contactDetails.seller?.email || "seller@example.com"}</p>
+                      <p><strong>Location:</strong> {contactDetails.product.location.address}</p>
+                      <p><strong>Rating:</strong> ⭐⭐⭐⭐⭐ (4.8/5)</p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-4 mb-6 max-h-64 overflow-y-auto">
+                    <h4 className="font-bold text-gray-800">Messages:</h4>
+                    {contactDetails.messages.map((message: any, index: number) => (
+                      <div key={index} className={`p-3 rounded-lg ${
+                        message.from === 'buyer' 
+                          ? 'bg-blue-100 ml-8' 
+                          : 'bg-gray-100 mr-8'
+                      }`}>
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="font-semibold text-sm">
+                            {message.from === 'buyer' ? 'You' : contactDetails.seller?.name || 'Seller'}
+                          </span>
+                          <span className="text-xs text-gray-500">{message.timestamp}</span>
+                        </div>
+                        <p className="text-sm">{message.message}</p>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="border-t pt-4">
+                    <div className="flex gap-3">
+                      <input
+                        type="text"
+                        placeholder="Type your message..."
+                        className="flex-1 p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
+                      />
+                      <button className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-all duration-300">
+                        Send
+                      </button>
+                    </div>
+                    <div className="flex gap-3 mt-3">
+                      <button className="flex-1 bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg font-medium transition-all duration-300">
+                        Arrange Pickup
+                      </button>
+                      <button className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded-lg font-medium transition-all duration-300">
+                        Request More Photos
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </div>
             )}

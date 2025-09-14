@@ -11,7 +11,36 @@ export default function Home() {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysis, setAnalysis] = useState<any>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [minPrice, setMinPrice] = useState("");
+  const [maxPrice, setMaxPrice] = useState("");
   const [notification, setNotification] = useState<{message: string, type: string} | null>(null);
+
+  // Category options for dropdown
+  const categoryOptions = [
+    "Electronics - Smartphones",
+    "Electronics - Laptops", 
+    "Electronics - Gaming",
+    "Electronics - Cameras",
+    "Electronics - Audio",
+    "Home & Garden - Appliances",
+    "Home & Garden - Furniture", 
+    "Home & Garden - Kitchen",
+    "Home & Garden - Tools",
+    "Fashion & Accessories - Clothing",
+    "Fashion & Accessories - Shoes",
+    "Fashion & Accessories - Jewelry",
+    "Fashion & Accessories - Luxury",
+    "Sports & Outdoors - Fitness",
+    "Sports & Outdoors - Cycling",
+    "Sports & Outdoors - Camping",
+    "Automotive - Parts",
+    "Automotive - Accessories",
+    "Books & Media - Textbooks",
+    "Books & Media - Comics",
+    "Art & Collectibles - Vintage",
+    "Art & Collectibles - Antiques"
+  ];
 
   // Mock data for demo
   useEffect(() => {
@@ -31,7 +60,7 @@ export default function Home() {
         location: { address: "Palo Alto, CA" },
         status: "active",
         createdAt: Date.now(),
-        category: "electronics",
+        category: "Electronics - Smartphones",
         sellerId: "seller1"
       },
       {
@@ -49,7 +78,7 @@ export default function Home() {
         location: { address: "San Francisco, CA" },
         status: "active",
         createdAt: Date.now(),
-        category: "electronics",
+        category: "Electronics - Laptops",
         sellerId: "seller2"
       },
       {
@@ -67,8 +96,134 @@ export default function Home() {
         location: { address: "San Francisco, CA" },
         status: "active",
         createdAt: Date.now(),
-        category: "appliances",
+        category: "Home & Garden - Appliances",
         sellerId: "seller3"
+      },
+      {
+        _id: "4",
+        makeModel: "Nike Air Jordan 1",
+        variant: "Size 10 Chicago Colorway",
+        condition: "like-new",
+        currentPrice: 320,
+        originalPrice: 170,
+        quickSalePrice: 280,
+        holdOutPrice: 380,
+        description: "Classic Air Jordan 1 in excellent condition, worn only twice",
+        defects: "Very minor creasing on toe box",
+        images: ["👟"],
+        location: { address: "Los Angeles, CA" },
+        status: "active",
+        createdAt: Date.now() - 86400000,
+        category: "Fashion & Accessories - Shoes",
+        sellerId: "seller1"
+      },
+      {
+        _id: "5",
+        makeModel: "Canon EOS R5",
+        variant: "Body Only with Battery Grip",
+        condition: "good",
+        currentPrice: 2800,
+        originalPrice: 3899,
+        quickSalePrice: 2500,
+        holdOutPrice: 3100,
+        description: "Professional mirrorless camera with low shutter count",
+        defects: "Minor wear on grip, small scratch on LCD",
+        images: ["📷"],
+        location: { address: "San Diego, CA" },
+        status: "active",
+        createdAt: Date.now() - 172800000,
+        category: "Electronics - Cameras",
+        sellerId: "seller2"
+      },
+      {
+        _id: "6",
+        makeModel: "Herman Miller Aeron",
+        variant: "Size B Graphite",
+        condition: "good",
+        currentPrice: 650,
+        originalPrice: 1395,
+        quickSalePrice: 550,
+        holdOutPrice: 750,
+        description: "Ergonomic office chair in good working condition",
+        defects: "Minor wear on armrests, small stain on seat",
+        images: ["🪑"],
+        location: { address: "San Francisco, CA" },
+        status: "active",
+        createdAt: Date.now() - 259200000,
+        category: "Home & Garden - Furniture",
+        sellerId: "seller3"
+      },
+      {
+        _id: "7",
+        makeModel: "PlayStation 5",
+        variant: "Standard Edition with Controller",
+        condition: "like-new",
+        currentPrice: 450,
+        originalPrice: 499,
+        quickSalePrice: 420,
+        holdOutPrice: 480,
+        description: "Barely used PS5 with original packaging and accessories",
+        defects: "None",
+        images: ["🎮"],
+        location: { address: "Oakland, CA" },
+        status: "active",
+        createdAt: Date.now() - 345600000,
+        category: "Electronics - Gaming",
+        sellerId: "seller1"
+      },
+      {
+        _id: "8",
+        makeModel: "Rolex Submariner",
+        variant: "116610LN Black Dial",
+        condition: "good",
+        currentPrice: 12500,
+        originalPrice: 8550,
+        quickSalePrice: 11800,
+        holdOutPrice: 13200,
+        description: "Authentic Rolex Submariner with box and papers",
+        defects: "Minor scratches on bracelet, normal wear",
+        images: ["⌚"],
+        location: { address: "Beverly Hills, CA" },
+        status: "active",
+        createdAt: Date.now() - 432000000,
+        category: "Fashion & Accessories - Luxury",
+        sellerId: "seller2"
+      },
+      {
+        _id: "9",
+        makeModel: "Trek Domane SL 6",
+        variant: "56cm Carbon Road Bike",
+        condition: "good",
+        currentPrice: 2200,
+        originalPrice: 3200,
+        quickSalePrice: 1950,
+        holdOutPrice: 2450,
+        description: "High-end carbon road bike with Shimano 105 groupset",
+        defects: "Minor chain wear, small paint chips",
+        images: ["🚴"],
+        location: { address: "Santa Barbara, CA" },
+        status: "active",
+        createdAt: Date.now() - 518400000,
+        category: "Sports & Outdoors - Cycling",
+        sellerId: "seller3"
+      },
+      {
+        _id: "10",
+        makeModel: "KitchenAid Stand Mixer",
+        variant: "Artisan 5-Qt Onyx Black",
+        condition: "like-new",
+        currentPrice: 280,
+        originalPrice: 379,
+        quickSalePrice: 250,
+        holdOutPrice: 320,
+        description: "Professional stand mixer used only a few times",
+        defects: "None",
+        images: ["🍰"],
+        location: { address: "Fresno, CA" },
+        status: "active",
+        createdAt: Date.now() - 604800000,
+        category: "Home & Garden - Kitchen",
+        sellerId: "seller1"
       }
     ];
 
@@ -92,11 +247,53 @@ export default function Home() {
     setSearchTerm(term);
   };
 
-  const filteredProducts = products.filter(product => 
-    searchTerm === "" || 
-    product.makeModel.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    product.category.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const handleBuyerSearch = () => {
+    showNotification(`Searching for products... Found ${getFilteredProducts().length} matches!`, "success");
+  };
+
+  const getFilteredProducts = () => {
+    return products.filter(product => {
+      const matchesSearch = searchTerm === "" || 
+        product.makeModel.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        product.category.toLowerCase().includes(searchTerm.toLowerCase());
+      
+      const matchesCategory = selectedCategory === "" || 
+        product.category.toLowerCase().includes(selectedCategory.toLowerCase());
+      
+      const matchesMinPrice = minPrice === "" || 
+        product.currentPrice >= parseInt(minPrice);
+      
+      const matchesMaxPrice = maxPrice === "" || 
+        product.currentPrice <= parseInt(maxPrice);
+      
+      return matchesSearch && matchesCategory && matchesMinPrice && matchesMaxPrice;
+    });
+  };
+
+  const filteredProducts = getFilteredProducts();
+
+  // Calculate real statistics
+  const calculateStats = () => {
+    const totalProducts = products.length;
+    const totalUsers = users.length;
+    const totalValue = products.reduce((sum, product) => sum + product.currentPrice, 0);
+    const avgPrice = totalProducts > 0 ? Math.round(totalValue / totalProducts) : 0;
+    const avgSavings = products.reduce((sum, product) => {
+      const savings = product.originalPrice - product.currentPrice;
+      return sum + savings;
+    }, 0) / totalProducts;
+    const matchRate = Math.round((filteredProducts.length / totalProducts) * 100);
+    
+    return {
+      totalProducts,
+      totalUsers,
+      avgPrice,
+      avgSavings: Math.round(avgSavings),
+      matchRate: matchRate || 87 // fallback to 87% if no products
+    };
+  };
+
+  const stats = calculateStats();
 
   const handleSellerChange = (sellerId: string) => {
     setSelectedSeller(sellerId);
@@ -390,7 +587,7 @@ export default function Home() {
               View Notifications
             </button>
             <div className="text-sm text-gray-700 bg-white px-4 py-2 rounded-lg border border-gray-200 font-semibold transition-all duration-300">
-              Match Rate: <span className="text-slate-700">87%</span> | Avg Savings: <span className="text-slate-700">$127</span>
+              Match Rate: <span className="text-slate-700">{stats.matchRate}%</span> | Avg Savings: <span className="text-slate-700">${stats.avgSavings}</span>
             </div>
           </div>
         </div>
@@ -551,16 +748,18 @@ export default function Home() {
                     <div className="grid grid-cols-2 gap-3">
                       <div>
                         <label className="block font-semibold mb-2">Category</label>
-                        <input
-                          type="text"
+                        <select
                           name="category"
-                          placeholder="e.g., Electronics - Smartphones, Home & Garden - Appliances"
                           required
                           className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-green-500 focus:outline-none"
-                        />
-                        <div className="text-xs text-gray-500 mt-1">
-                          Popular: Electronics - Smartphones/Laptops/Gaming, Home & Garden - Appliances/Tools, Fashion & Accessories - Clothing/Jewelry/Luxury, Sports & Outdoors - Fitness/Camping, Automotive - Parts/Accessories, Books & Media - Textbooks/Collectibles
-                        </div>
+                        >
+                          <option value="">Select a category...</option>
+                          {categoryOptions.map((category) => (
+                            <option key={category} value={category}>
+                              {category}
+                            </option>
+                          ))}
+                        </select>
                       </div>
                       <div>
                         <label className="block font-semibold mb-2">Condition</label>
@@ -734,14 +933,18 @@ export default function Home() {
                   <div className="space-y-4">
                     <div>
                       <label className="block font-semibold mb-2">Looking For (Category)</label>
-                      <input
-                        type="text"
-                        placeholder="e.g., Electronics - Smartphones, Home & Garden, Fashion"
+                      <select
+                        value={selectedCategory}
+                        onChange={(e) => setSelectedCategory(e.target.value)}
                         className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
-                      />
-                      <div className="text-xs text-gray-500 mt-1">
-                        Popular: Electronics - Smartphones/Laptops/Gaming/Audio, Home & Garden - Appliances/Furniture/Tools/Decor, Fashion & Accessories - Clothing/Shoes/Jewelry/Luxury, Sports & Outdoors - Fitness/Camping/Cycling, Automotive - Parts/Accessories/Tools, Books & Media - Textbooks/Comics/Vinyl, Art & Collectibles - Vintage/Antiques/Memorabilia
-                      </div>
+                      >
+                        <option value="">All Categories</option>
+                        {categoryOptions.map((category) => (
+                          <option key={category} value={category}>
+                            {category}
+                          </option>
+                        ))}
+                      </select>
                     </div>
 
                     <div>
@@ -763,6 +966,8 @@ export default function Home() {
                         <label className="block font-semibold mb-2">Min Price ($)</label>
                         <input
                           type="number"
+                          value={minPrice}
+                          onChange={(e) => setMinPrice(e.target.value)}
                           placeholder="0"
                           className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
                         />
@@ -771,11 +976,20 @@ export default function Home() {
                         <label className="block font-semibold mb-2">Max Price ($)</label>
                         <input
                           type="number"
+                          value={maxPrice}
+                          onChange={(e) => setMaxPrice(e.target.value)}
                           placeholder="1000"
                           className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
                         />
                       </div>
                     </div>
+
+                    <button
+                      onClick={handleBuyerSearch}
+                      className="w-full bg-slate-700 hover:bg-slate-800 text-white py-3 px-6 rounded-lg font-semibold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+                    >
+                      Search Products
+                    </button>
                   </div>
                 </div>
 

@@ -45,53 +45,216 @@ buybot-marketplace/
 └── lib/               # Shared libraries
 ```
 
-## 🚀 Quick Start
+## 🚀 Quick Start - Run Locally
 
 ### Prerequisites
-- Node.js 18+ 
-- npm 8+
-- Convex account (for backend)
+- **Node.js 18+** - [Download here](https://nodejs.org/)
+- **npm 8+** or **pnpm** (recommended)
+- **Git** - [Download here](https://git-scm.com/)
 
-### Installation
+### 📋 Step-by-Step Local Setup
 
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/Kushal-11/adaptive-learning.git
-   cd PathSmith
-   ```
+#### **Step 1: Clone the Repository**
+```bash
+git clone https://github.com/Kushal-11/adaptive-learning.git
+cd PathSmith
+```
 
-2. **Install dependencies**
-   ```bash
-   npm run setup
-   ```
+#### **Step 2: Install Dependencies**
+Choose one of the following methods:
 
-3. **Set up environment variables**
-   ```bash
-   # Copy environment files
-   cp .env.example .env.local
-   cp frontend/.env.example frontend/.env.local
-   cp backend/.env.example backend/.env.local
-   ```
+**Option A: Using npm**
+```bash
+npm install
+```
 
-4. **Configure Convex**
+**Option B: Using pnpm (Recommended)**
+```bash
+# Install pnpm if you don't have it
+npm install -g pnpm
+
+# Install dependencies
+pnpm install
+```
+
+#### **Step 3: Set Up Environment Variables**
+```bash
+# Create environment files (if they don't exist)
+touch .env.local
+touch frontend/.env.local
+touch backend/.env.local
+```
+
+Add the following to your environment files:
+
+**Root `.env.local`:**
+```env
+# Add any global environment variables here
+NODE_ENV=development
+```
+
+**`frontend/.env.local`:**
+```env
+# Frontend configuration
+NEXT_PUBLIC_APP_URL=http://localhost:3006
+NEXT_PUBLIC_CONVEX_URL=https://your-deployment.convex.cloud
+```
+
+**`backend/.env.local`:**
+```env
+# Backend configuration
+CONVEX_DEPLOYMENT=your-deployment-name
+OPENAI_API_KEY=your-openai-api-key
+NODE_ENV=development
+```
+
+#### **Step 4: Start the Development Server**
+
+**Simple Method (Recommended):**
+```bash
+# Navigate to frontend directory
+cd frontend
+
+# Start the development server on port 3006
+npm run dev -- -p 3006
+```
+
+**Alternative Method:**
+```bash
+# From root directory
+cd frontend && npm run dev -- -p 3006
+```
+
+#### **Step 5: Open the Application**
+🎉 **Your BuyBot Marketplace is now running!**
+
+- **Main Application**: http://localhost:3006
+- **Development Server**: Automatically opens in your default browser
+
+### 🔧 Development Commands
+
+```bash
+# Start development server (from frontend directory)
+npm run dev                    # Default port (3000)
+npm run dev -- -p 3006       # Custom port (3006)
+
+# Build for production
+npm run build
+
+# Start production server
+npm start
+
+# Lint code
+npm run lint
+
+# Type checking
+npm run type-check
+```
+
+### 🎯 Quick Test Guide
+
+Once the server is running, you can test the features:
+
+1. **🏠 Main Page** - Beautiful modern design with gradient header
+2. **🤖 Autonomous Agent** - Click "Trigger Agent" to see notifications
+3. **🏪 Seller Profile** - Test the AI-Powered Product Analysis
+4. **🛒 Buyer Profile** - Search for products with flexible categories
+5. **📊 Database Management** - Use "Refresh Data" and "Seed Database"
+
+### 🐛 Troubleshooting
+
+**Port Already in Use:**
+```bash
+# Kill process on port 3006
+npx kill-port 3006
+
+# Or use a different port
+npm run dev -- -p 3007
+```
+
+**Dependencies Issues:**
+```bash
+# Clear node_modules and reinstall
+rm -rf node_modules package-lock.json
+npm install
+```
+
+**Build Errors:**
+```bash
+# Clear Next.js cache
+rm -rf .next
+npm run build
+```
+
+### 🚀 Advanced Setup (Optional)
+
+#### **With Convex Backend (Full Features)**
+
+1. **Create Convex Account**
+   - Visit https://convex.dev
+   - Sign up for a free account
+
+2. **Initialize Convex**
    ```bash
    cd backend
    npx convex dev
-   # Follow the setup instructions
+   # Follow the authentication flow
    ```
 
-5. **Start development servers**
+3. **Update Environment Variables**
    ```bash
-   # Terminal 1: Start frontend
-   npm run frontend:dev
-   
-   # Terminal 2: Start backend
-   npm run backend:dev
+   # Update frontend/.env.local with your Convex URL
+   NEXT_PUBLIC_CONVEX_URL=https://your-deployment.convex.cloud
    ```
 
-6. **Open the application**
-   - Frontend: http://localhost:3000
-   - Convex Dashboard: https://dashboard.convex.dev
+4. **Seed Database**
+   ```bash
+   npx convex run seedData:seedAll
+   ```
+
+#### **With AI Features (OpenAI)**
+
+1. **Get OpenAI API Key**
+   - Visit https://platform.openai.com/api-keys
+   - Create a new API key
+
+2. **Update Backend Environment**
+   ```bash
+   # Add to backend/.env.local
+   OPENAI_API_KEY=sk-your-openai-api-key
+   ```
+
+### 📱 Mobile Development
+
+The application is fully responsive and works on mobile devices:
+
+```bash
+# Access from mobile device on same network
+# Replace YOUR_IP with your computer's IP address
+http://YOUR_IP:3006
+```
+
+### 🔄 Hot Reload
+
+The development server supports hot reload:
+- **Frontend changes** - Automatically refresh in browser
+- **Code changes** - Instant updates without losing state
+- **Style changes** - Live CSS updates
+
+### 📊 Performance
+
+**Development Mode:**
+- Hot reload enabled
+- Source maps for debugging
+- Detailed error messages
+
+**Production Mode:**
+```bash
+npm run build && npm start
+```
+- Optimized bundles
+- Minified code
+- Better performance
 
 ## 🎯 Usage
 
@@ -163,7 +326,7 @@ OPENAI_API_KEY=your_openai_key
 3. Follow authentication flow
 4. Update environment variables
 
-## 📊 Features in Detail
+## � Features in Detail
 
 ### AI Agent System
 - **Intelligent Matching**: 60%+ compatibility threshold

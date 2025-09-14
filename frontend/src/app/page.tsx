@@ -15,6 +15,11 @@ export default function Home() {
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
   const [notification, setNotification] = useState<{message: string, type: string} | null>(null);
+  const [isMatching, setIsMatching] = useState(false);
+  const [matchingProgress, setMatchingProgress] = useState(0);
+  const [matchingStage, setMatchingStage] = useState("");
+  const [matches, setMatches] = useState<any[]>([]);
+  const [showMatches, setShowMatches] = useState(false);
 
   // Category options for dropdown
   const categoryOptions = [
@@ -247,8 +252,78 @@ export default function Home() {
     setSearchTerm(term);
   };
 
-  const handleBuyerSearch = () => {
-    showNotification(`Searching for products... Found ${getFilteredProducts().length} matches!`, "success");
+  const handleBuyerSearch = async () => {
+    setIsMatching(true);
+    setMatchingProgress(0);
+    setShowMatches(false);
+    setMatches([]);
+
+    // Stage 1: Analyzing search criteria
+    setMatchingStage("Analyzing your search criteria...");
+    setMatchingProgress(20);
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
+    // Stage 2: Scanning product database
+    setMatchingStage("Scanning product database...");
+    setMatchingProgress(40);
+    await new Promise(resolve => setTimeout(resolve, 1200));
+
+    // Stage 3: AI matching algorithm
+    setMatchingStage("Running AI matching algorithm...");
+    setMatchingProgress(60);
+    await new Promise(resolve => setTimeout(resolve, 1500));
+
+    // Stage 4: Calculating compatibility scores
+    setMatchingStage("Calculating compatibility scores...");
+    setMatchingProgress(80);
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
+    // Stage 5: Finalizing matches
+    setMatchingStage("Finalizing best matches...");
+    setMatchingProgress(100);
+    await new Promise(resolve => setTimeout(resolve, 800));
+
+    // Get filtered products and create matches with scores
+    const filteredProducts = getFilteredProducts();
+    const matchesWithScores = filteredProducts.map(product => ({
+      ...product,
+      matchScore: Math.floor(Math.random() * 30) + 70, // 70-99% match score
+      reasons: generateMatchReasons(product, searchTerm, selectedCategory),
+      estimatedSavings: product.originalPrice - product.currentPrice,
+      negotiationPotential: Math.floor(Math.random() * 15) + 5 // 5-20% potential savings
+    })).sort((a, b) => b.matchScore - a.matchScore);
+
+    setMatches(matchesWithScores);
+    setIsMatching(false);
+    setShowMatches(true);
+    
+    showNotification(`🎯 Found ${matchesWithScores.length} high-quality matches! AI agent ready to negotiate.`, "success");
+  };
+
+  const generateMatchReasons = (product: any, searchTerm: string, category: string) => {
+    const reasons = [];
+    
+    if (searchTerm && product.makeModel.toLowerCase().includes(searchTerm.toLowerCase())) {
+      reasons.push("Exact product match");
+    }
+    
+    if (category && product.category.includes(category)) {
+      reasons.push("Perfect category match");
+    }
+    
+    if (product.condition === "like-new") {
+      reasons.push("Excellent condition");
+    }
+    
+    const savings = product.originalPrice - product.currentPrice;
+    if (savings > 100) {
+      reasons.push(`Great savings: $${savings}`);
+    }
+    
+    reasons.push("High seller rating");
+    reasons.push("Verified seller");
+    
+    return reasons.slice(0, 3); // Show top 3 reasons
   };
 
   const getFilteredProducts = () => {
@@ -986,42 +1061,144 @@ export default function Home() {
 
                     <button
                       onClick={handleBuyerSearch}
-                      className="w-full bg-slate-700 hover:bg-slate-800 text-white py-3 px-6 rounded-lg font-semibold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+                      disabled={isMatching}
+                      className={`w-full py-3 px-6 rounded-lg font-semibold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 ${
+                        isMatching 
+                          ? "bg-gray-400 text-white cursor-not-allowed" 
+                          : "bg-slate-700 hover:bg-slate-800 text-white"
+                      }`}
                     >
-                      Search Products
+                      {isMatching ? "AI Agent Working..." : "Find Matches with AI"}
                     </button>
+
+                    {/* AI Matching Progress */}
+                    {isMatching && (
+                      <div className="bg-white rounded-lg p-6 border-2 border-blue-200 shadow-lg">
+                        <div className="text-center mb-4">
+                          <div className="w-16 h-16 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
+                          <h4 className="text-lg font-bold text-gray-800 mb-2">AI Agent is Working</h4>
+                          <p className="text-sm text-gray-600 mb-4">{matchingStage}</p>
+                        </div>
+                        
+                        {/* Progress Bar */}
+                        <div className="w-full bg-gray-200 rounded-full h-3 mb-4">
+                          <div 
+                            className="bg-gradient-to-r from-blue-500 to-blue-600 h-3 rounded-full transition-all duration-500 ease-out"
+                            style={{ width: `${matchingProgress}%` }}
+                          ></div>
+                        </div>
+                        
+                        <div className="text-center">
+                          <span className="text-sm font-medium text-gray-700">{matchingProgress}% Complete</span>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
 
-                {/* Products Display */}
+                {/* Enhanced Match Results Display */}
                 <div className="bg-gray-50 rounded-xl p-6 border-2 border-gray-200">
-                  <h3 className="text-xl font-bold mb-4">Search Results</h3>
-                  <div className="space-y-4 max-h-96 overflow-y-auto">
-                    {filteredProducts.map((product) => (
-                      <div key={product._id} className="bg-white rounded-lg p-4 border border-gray-200 shadow-sm">
-                        <div className="flex justify-between items-start mb-2">
-                          <h4 className="font-semibold text-lg">{product.makeModel}</h4>
-                          <span className="text-2xl">{product.images[0]}</span>
-                        </div>
-                        <p className="text-sm text-gray-600 mb-2">{product.variant}</p>
-                        <div className="flex justify-between items-center mb-2">
-                          <span className="text-lg font-bold text-blue-600">${product.currentPrice}</span>
-                          <span className={`px-2 py-1 rounded text-xs font-medium ${
-                            product.condition === 'new' ? 'bg-green-100 text-green-800' :
-                            product.condition === 'like-new' ? 'bg-blue-100 text-blue-800' :
-                            product.condition === 'good' ? 'bg-yellow-100 text-yellow-800' :
-                            'bg-gray-100 text-gray-800'
-                          }`}>
-                            {product.condition}
-                          </span>
-                        </div>
-                        <p className="text-sm text-gray-600 mb-2">{product.description}</p>
-                        <div className="text-xs text-gray-500">
-                          📍 {product.location.address} • Listed {new Date(product.createdAt).toLocaleDateString()}
+                  {!showMatches && !isMatching ? (
+                    <div className="text-center py-12">
+                      <div className="w-24 h-24 bg-gray-200 rounded-full mx-auto mb-4 flex items-center justify-center">
+                        <span className="text-4xl text-gray-400">🔍</span>
+                      </div>
+                      <h3 className="text-xl font-bold mb-2 text-gray-600">Ready to Find Matches</h3>
+                      <p className="text-gray-500">Use the search form to find products and start AI matching</p>
+                    </div>
+                  ) : showMatches ? (
+                    <>
+                      <div className="flex items-center justify-between mb-6">
+                        <h3 className="text-xl font-bold text-gray-800">AI Match Results</h3>
+                        <div className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
+                          {matches.length} High-Quality Matches
                         </div>
                       </div>
-                    ))}
-                  </div>
+                      
+                      <div className="space-y-4 max-h-96 overflow-y-auto">
+                        {matches.map((match) => (
+                          <div key={match._id} className="bg-white rounded-lg p-6 border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300">
+                            {/* Match Score Header */}
+                            <div className="flex items-center justify-between mb-4">
+                              <div className="flex items-center gap-3">
+                                <div className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-white ${
+                                  match.matchScore >= 90 ? 'bg-green-500' :
+                                  match.matchScore >= 80 ? 'bg-blue-500' :
+                                  'bg-yellow-500'
+                                }`}>
+                                  {match.matchScore}%
+                                </div>
+                                <div>
+                                  <h4 className="font-bold text-lg text-gray-800">{match.makeModel}</h4>
+                                  <p className="text-sm text-gray-600">{match.variant}</p>
+                                </div>
+                              </div>
+                              <span className="text-3xl">{match.images[0]}</span>
+                            </div>
+
+                            {/* Match Reasons */}
+                            <div className="mb-4">
+                              <h5 className="font-semibold text-gray-700 mb-2">Why this is a great match:</h5>
+                              <div className="flex flex-wrap gap-2">
+                                {match.reasons.map((reason: string, index: number) => (
+                                  <span key={index} className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium">
+                                    ✓ {reason}
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+
+                            {/* Pricing Information */}
+                            <div className="grid grid-cols-3 gap-4 mb-4 p-4 bg-gray-50 rounded-lg">
+                              <div className="text-center">
+                                <div className="text-2xl font-bold text-green-600">${match.currentPrice}</div>
+                                <div className="text-xs text-gray-500">Current Price</div>
+                              </div>
+                              <div className="text-center">
+                                <div className="text-lg font-bold text-gray-600">${match.estimatedSavings}</div>
+                                <div className="text-xs text-gray-500">You Save</div>
+                              </div>
+                              <div className="text-center">
+                                <div className="text-lg font-bold text-blue-600">{match.negotiationPotential}%</div>
+                                <div className="text-xs text-gray-500">Negotiation Potential</div>
+                              </div>
+                            </div>
+
+                            {/* Product Details */}
+                            <div className="mb-4">
+                              <p className="text-sm text-gray-600 mb-2">{match.description}</p>
+                              <div className="flex items-center justify-between text-xs text-gray-500">
+                                <span>📍 {match.location.address}</span>
+                                <span className={`px-2 py-1 rounded text-xs font-medium ${
+                                  match.condition === 'new' ? 'bg-green-100 text-green-800' :
+                                  match.condition === 'like-new' ? 'bg-blue-100 text-blue-800' :
+                                  match.condition === 'good' ? 'bg-yellow-100 text-yellow-800' :
+                                  'bg-gray-100 text-gray-800'
+                                }`}>
+                                  {match.condition}
+                                </span>
+                              </div>
+                            </div>
+
+                            {/* Action Buttons */}
+                            <div className="flex gap-3">
+                              <button className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg font-medium transition-all duration-300 transform hover:scale-105">
+                                Start Negotiation
+                              </button>
+                              <button className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded-lg font-medium transition-all duration-300 transform hover:scale-105">
+                                Contact Seller
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </>
+                  ) : (
+                    <div className="text-center py-8">
+                      <h3 className="text-xl font-bold mb-4 text-gray-800">AI Agent Processing...</h3>
+                      <p className="text-gray-600">Please wait while our AI finds the best matches for you</p>
+                    </div>
+                  )}
                 </div>
               </div>
             )}

@@ -631,8 +631,8 @@ export default function Home() {
             <div className="flex justify-between items-center">
               <div className="transition-all duration-500 hover:scale-105">
                 <div className="flex items-center gap-4 mb-3">
-                  <div className="w-16 h-16 bg-gradient-to-br from-gray-700 to-gray-600 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-lg border border-white/10 transition-all duration-300 hover:shadow-xl">
-                    <span className="text-white font-bold text-2xl">AM</span>
+                  <div className="w-16 h-16 bg-white/10 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-lg border border-white/10 transition-all duration-300 hover:shadow-xl overflow-hidden">
+                    <img src="/logo.png" alt="Agentic Marketplace" className="w-12 h-12 object-contain" />
                   </div>
                   <div>
                     <h1 className="text-4xl font-bold text-white transition-all duration-300">

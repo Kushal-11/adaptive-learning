@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
 
     // Call OpenAI Vision API with GPT-4 Vision using a multi-step analysis approach
     const response = await openai.chat.completions.create({
-      model: "gpt-4-vision-preview",
+      model: "gpt-4o",
       messages: [
         {
           role: "system",

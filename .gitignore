@@ -206,3 +206,6 @@ celerybeat-schedule
 .mypy_cache/
 .dmypy.json
 dmypy.json
+
+# Images folder
+images/

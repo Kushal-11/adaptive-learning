@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "convex dev",
-    "build": "convex deploy",
+    "build": "tsc --noEmit -p convex/tsconfig.json",
     "convex:dev": "convex dev",
     "convex:deploy": "convex deploy",
     "import:sample-data": "convex import --table users sampleData/users.jsonl && convex import --table agents sampleData/agents.jsonl && convex import --table deals sampleData/deals.jsonl"

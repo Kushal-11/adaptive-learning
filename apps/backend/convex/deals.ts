@@ -68,13 +68,9 @@ export const listDeals = query({
       query = query.filter((q) => q.eq(q.field("status"), args.status));
     }
 
-    query = query.order("desc");
-
-    if (args.limit) {
-      query = query.take(args.limit);
-    }
-
-    const deals = await query.collect();
+    const deals = await query
+      .order("desc")
+      .take(args.limit || 100);
 
     // Enrich deals with agent information
     const enrichedDeals = await Promise.all(

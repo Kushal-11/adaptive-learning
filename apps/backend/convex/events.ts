@@ -49,7 +49,7 @@ export const getEventsByDeal = query({
       .query("events")
       .filter((q) => q.eq(q.field("dealId"), args.dealId))
       .order("asc")
-      .collect();
+;
 
     return events;
   },

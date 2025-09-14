@@ -517,113 +517,81 @@ export default function Home() {
   const analyzeImage = async (imageFile: File) => {
     setIsAnalyzing(true);
     
-    // Simulate AI analysis with realistic delay
-    await new Promise(resolve => setTimeout(resolve, 3000));
-    
-    const mockAnalyses = [
-      {
-        category: "Electronics - Smartphones",
-        condition: "good",
-        confidence: 0.92,
-        description: "iPhone 14 Pro 256GB in good condition with minor wear on edges and back. Screen is pristine with no cracks. Battery health appears good based on visual inspection.",
-        suggestedPrice: 750,
-        marketComparison: {
-          averagePrice: 765,
-          priceRange: { min: 650, max: 850 },
-          similarListings: 47,
-          marketTrend: 'stable'
+    try {
+      // Convert image to base64
+      const base64Image = await new Promise<string>((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          const result = reader.result as string;
+          resolve(result.split(',')[1]); // Remove data:image/jpeg;base64, prefix
+        };
+        reader.readAsDataURL(imageFile);
+      });
+
+      // Call OpenAI Vision API
+      const response = await fetch('/api/analyze-image', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
         },
-        defectsDetected: ["Minor edge wear", "Small scratches on back", "Slight discoloration on charging port"],
-        valuationBreakdown: {
-          baseValue: 900,
-          conditionAdjustment: -120,
-          marketDemand: -30,
-          finalEstimate: 750
-        }
-      },
-      {
-        category: "Electronics - Laptops", 
-        condition: "like-new",
-        confidence: 0.88,
-        description: "MacBook Air M2 13-inch in excellent condition with minimal usage signs. No visible scratches or dents. Original packaging and accessories included.",
-        suggestedPrice: 1050,
-        marketComparison: {
-          averagePrice: 1075,
-          priceRange: { min: 950, max: 1200 },
-          similarListings: 31,
-          marketTrend: 'rising'
-        },
-        defectsDetected: ["Very minor keyboard wear", "Slight palm rest shine"],
-        valuationBreakdown: {
-          baseValue: 1299,
-          conditionAdjustment: -200,
-          marketDemand: -49,
-          finalEstimate: 1050
-        }
-      },
-      {
-        category: "Home & Garden - Appliances",
-        condition: "good",
-        confidence: 0.85,
-        description: "Dyson V15 cordless vacuum in good working condition with all attachments. Shows normal wear from regular use.",
-        suggestedPrice: 320,
-        marketComparison: {
-          averagePrice: 340,
-          priceRange: { min: 280, max: 400 },
-          similarListings: 23,
-          marketTrend: 'stable'
-        },
-        defectsDetected: ["Minor scuff marks on body", "Slight wear on trigger"],
-        valuationBreakdown: {
-          baseValue: 450,
-          conditionAdjustment: -100,
-          marketDemand: -30,
-          finalEstimate: 320
-        }
-      },
-      {
-        category: "Fashion & Accessories - Luxury",
-        condition: "like-new",
-        confidence: 0.90,
-        description: "Louis Vuitton Neverfull MM in Damier Ebene canvas, barely used with original dust bag and receipt.",
-        suggestedPrice: 1200,
-        marketComparison: {
-          averagePrice: 1250,
-          priceRange: { min: 1100, max: 1400 },
-          similarListings: 15,
-          marketTrend: 'rising'
-        },
-        defectsDetected: ["Very minor corner wear"],
-        valuationBreakdown: {
-          baseValue: 1500,
-          conditionAdjustment: -250,
-          marketDemand: -50,
-          finalEstimate: 1200
-        }
+        body: JSON.stringify({
+          image: base64Image,
+          mimeType: imageFile.type
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to analyze image');
       }
-    ];
-    
-    const randomAnalysis = mockAnalyses[Math.floor(Math.random() * mockAnalyses.length)];
-    setAnalysis(randomAnalysis);
-    
-    // Auto-fill form fields
-    const form = document.querySelector('form') as HTMLFormElement;
-    if (form) {
-      const categoryInput = form.querySelector('input[name="category"]') as HTMLInputElement;
-      const conditionSelect = form.querySelector('select[name="condition"]') as HTMLSelectElement;
-      const descriptionTextarea = form.querySelector('textarea[name="description"]') as HTMLTextAreaElement;
-      const defectsTextarea = form.querySelector('textarea[name="defects"]') as HTMLTextAreaElement;
-      const currentPriceInput = form.querySelector('input[name="currentPrice"]') as HTMLInputElement;
-      const quickSalePriceInput = form.querySelector('input[name="quickSalePrice"]') as HTMLInputElement;
-      const holdOutPriceInput = form.querySelector('input[name="holdOutPrice"]') as HTMLInputElement;
+
+      const analysisResult = await response.json();
+      setAnalysis(analysisResult);
+
+      // Auto-fill form fields
+      const form = document.querySelector('form') as HTMLFormElement;
+      if (form) {
+        const categorySelect = form.querySelector('select[name="category"]') as HTMLSelectElement;
+        const conditionSelect = form.querySelector('select[name="condition"]') as HTMLSelectElement;
+        const descriptionTextarea = form.querySelector('textarea[name="description"]') as HTMLTextAreaElement;
+        const defectsTextarea = form.querySelector('textarea[name="defects"]') as HTMLTextAreaElement;
+        const currentPriceInput = form.querySelector('input[name="currentPrice"]') as HTMLInputElement;
+        const quickSalePriceInput = form.querySelector('input[name="quickSalePrice"]') as HTMLInputElement;
+        const holdOutPriceInput = form.querySelector('input[name="holdOutPrice"]') as HTMLInputElement;
+        
+        if (categorySelect) categorySelect.value = analysisResult.category;
+        if (conditionSelect) conditionSelect.value = analysisResult.condition;
+        if (descriptionTextarea) descriptionTextarea.value = analysisResult.description;
+        if (defectsTextarea) defectsTextarea.value = analysisResult.defectsDetected.join(", ");
+        if (currentPriceInput) currentPriceInput.value = analysisResult.suggestedPrice.toString();
+        if (quickSalePriceInput) quickSalePriceInput.value = Math.round(analysisResult.suggestedPrice * 0.85).toString();
+        if (holdOutPriceInput) holdOutPriceInput.value = Math.round(analysisResult.suggestedPrice * 1.15).toString();
+      }
+    } catch (error) {
+      console.error('Image analysis failed:', error);
+      showNotification('Image analysis failed. Please try again.', 'error');
       
-      if (categoryInput) categoryInput.value = randomAnalysis.category;
-      if (conditionSelect) conditionSelect.value = randomAnalysis.condition;
-      if (descriptionTextarea) descriptionTextarea.value = randomAnalysis.description;
-      if (defectsTextarea) defectsTextarea.value = randomAnalysis.defectsDetected.join(", ");
-      if (currentPriceInput) currentPriceInput.value = randomAnalysis.suggestedPrice.toString();
-      if (quickSalePriceInput) quickSalePriceInput.value = Math.round(randomAnalysis.suggestedPrice * 0.85).toString();
-      if (holdOutPriceInput) holdOutPriceInput.value = Math.round(randomAnalysis.suggestedPrice * 1.15).toString();
+      // Fallback to basic analysis
+      const fallbackAnalysis = {
+        category: "Electronics - General",
+        condition: "good",
+        confidence: 0.5,
+        description: "Unable to analyze image automatically. Please fill in the details manually.",
+        suggestedPrice: 100,
+        marketComparison: {
+          averagePrice: 100,
+          priceRange: { min: 50, max: 150 },
+          similarListings: 0,
+          marketTrend: 'unknown'
+        },
+        defectsDetected: ["Please inspect manually"],
+        valuationBreakdown: {
+          baseValue: 100,
+          conditionAdjustment: 0,
+          marketDemand: 0,
+          finalEstimate: 100
+        }
+      };
+      setAnalysis(fallbackAnalysis);
     }
     
     setIsAnalyzing(false);

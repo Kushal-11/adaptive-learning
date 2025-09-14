@@ -56,6 +56,37 @@ export default function Home() {
     "Art & Collectibles - Antiques"
   ];
 
+  // Generate available time slots
+  useEffect(() => {
+    const generateTimeSlots = () => {
+      const slots = [];
+      const today = new Date();
+      
+      // Generate slots for next 7 days
+      for (let day = 0; day < 7; day++) {
+        const date = new Date(today);
+        date.setDate(today.getDate() + day);
+        const dateStr = date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+        
+        // Morning slots
+        slots.push(`${dateStr} - 9:00 AM`);
+        slots.push(`${dateStr} - 11:00 AM`);
+        
+        // Afternoon slots
+        slots.push(`${dateStr} - 2:00 PM`);
+        slots.push(`${dateStr} - 4:00 PM`);
+        
+        // Evening slots
+        slots.push(`${dateStr} - 6:00 PM`);
+        slots.push(`${dateStr} - 8:00 PM`);
+      }
+      
+      setAvailableTimeSlots(slots);
+    };
+    
+    generateTimeSlots();
+  }, []);
+
   // Mock data for demo
   useEffect(() => {
     const sampleProducts = [
@@ -947,6 +978,26 @@ export default function Home() {
                         rows={2}
                         className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-green-500 focus:outline-none"
                       />
+                    </div>
+
+                    <div>
+                      <label className="block font-semibold mb-2">Available Pickup Times</label>
+                      <select
+                        name="timeSlot"
+                        value={selectedTimeSlot}
+                        onChange={(e) => setSelectedTimeSlot(e.target.value)}
+                        className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-green-500 focus:outline-none"
+                      >
+                        <option value="">Select preferred pickup time...</option>
+                        {availableTimeSlots.map((slot, index) => (
+                          <option key={index} value={slot}>
+                            {slot}
+                          </option>
+                        ))}
+                      </select>
+                      <div className="text-sm text-gray-600 mt-1">
+                        Choose your preferred time for buyer pickup
+                      </div>
                     </div>
 
                     <button

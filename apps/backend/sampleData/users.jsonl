@@ -1,8 +1,0 @@
-{"name": "Alice Johnson", "email": "alice@example.com", "role": "buyer", "createdAt": 1704067200000}
-{"name": "Bob Smith", "email": "bob@example.com", "role": "seller", "createdAt": 1704067260000}
-{"name": "Carol Davis", "email": "carol@example.com", "role": "both", "createdAt": 1704067320000}
-{"name": "David Wilson", "email": "david@example.com", "role": "buyer", "createdAt": 1704067380000}
-{"name": "Emma Brown", "email": "emma@example.com", "role": "seller", "createdAt": 1704067440000}
-{"name": "Frank Miller", "email": "frank@example.com", "role": "both", "createdAt": 1704067500000}
-{"name": "Grace Lee", "email": "grace@example.com", "role": "buyer", "createdAt": 1704067560000}
-{"name": "Henry Taylor", "email": "henry@example.com", "role": "seller", "createdAt": 1704067620000}

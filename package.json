@@ -1,43 +1,38 @@
 {
-  "name": "@ai-marketplace/root",
+  "name": "buybot-marketplace",
   "version": "1.0.0",
-  "description": "AI Agent Marketplace - Autonomous negotiation platform",
+  "description": "AI-powered marketplace with autonomous negotiator agents",
   "private": true,
   "workspaces": [
-    "apps/*",
-    "packages/*"
+    "frontend",
+    "backend"
   ],
   "scripts": {
     "dev": "turbo run dev",
     "build": "turbo run build",
+    "start": "turbo run start",
     "lint": "turbo run lint",
-    "type-check": "turbo run type-check",
-    "dev:frontend": "turbo run dev --filter=@ai-marketplace/frontend",
-    "dev:backend": "turbo run dev --filter=@ai-marketplace/backend",
-    "dev:all": "turbo run dev --parallel",
-    "build:all": "turbo run build",
-    "clean": "turbo run clean && rm -rf node_modules",
-    "setup": "pnpm install && turbo run build --filter=@ai-marketplace/shared-types"
+    "clean": "turbo run clean",
+    "frontend:dev": "cd frontend && npm run dev",
+    "backend:dev": "cd backend && npx convex dev",
+    "setup": "npm install && cd frontend && npm install && cd ../backend && npm install"
   },
   "keywords": [
     "ai",
     "marketplace",
-    "negotiation",
     "agents",
+    "negotiation",
     "convex",
-    "inkeep",
-    "monorepo"
+    "nextjs",
+    "typescript"
   ],
-  "author": "AI Marketplace Team",
+  "author": "PathSmith Team",
   "license": "MIT",
   "devDependencies": {
-    "turbo": "^1.10.0",
-    "@types/node": "^20.0.0",
-    "typescript": "^5.0.0"
+    "turbo": "^1.10.0"
   },
-  "packageManager": "pnpm@8.0.0",
   "engines": {
     "node": ">=18.0.0",
-    "pnpm": ">=8.0.0"
+    "npm": ">=8.0.0"
   }
 }

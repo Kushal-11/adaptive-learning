@@ -6,20 +6,20 @@ export const simulateNegotiationStep = action({
   args: {
     dealId: v.id("deals"),
   },
-  handler: async (ctx, args) => {
+  handler: async (ctx, args): Promise<any> => {
     // Get deal information
-    const deal = await ctx.runQuery(api.deals.getDealById, { dealId: args.dealId });
+    const deal: any = await ctx.runQuery(api.deals.getDealById, { dealId: args.dealId });
     
     if (!deal || deal.status !== "active") {
       return { success: false, reason: "Deal not active" };
     }
 
     const { negotiationState, buyerAgent, sellerAgent } = deal;
-    
+
     // Simple negotiation logic for demo purposes
-    const currentPrice = negotiationState.currentPrice;
-    const initialPrice = deal.item.initialPrice;
-    const rounds = negotiationState.rounds;
+    const currentPrice: number = negotiationState.currentPrice;
+    const initialPrice: number = deal.item.initialPrice;
+    const rounds: number = negotiationState.rounds;
     const maxRounds = Math.min(buyerAgent?.thresholds.maxNegotiationRounds || 10, sellerAgent?.thresholds.maxNegotiationRounds || 10);
     
     // Check if negotiation should timeout

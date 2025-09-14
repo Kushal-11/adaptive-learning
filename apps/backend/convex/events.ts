@@ -49,7 +49,7 @@ export const getEventsByDeal = query({
       .query("events")
       .filter((q) => q.eq(q.field("dealId"), args.dealId))
       .order("asc")
-;
+      .collect();
 
     return events;
   },
@@ -65,12 +65,11 @@ export const getRecentEvents = query({
     const events = await ctx.db
       .query("events")
       .order("desc")
-      .take(limit)
-      .collect();
+      .take(limit);
 
     // Enrich events with deal information
     const enrichedEvents = await Promise.all(
-      events.map(async (event) => {
+      events.map(async (event: any) => {
         const deal = await ctx.db.get(event.dealId);
         return {
           ...event,
@@ -102,8 +101,7 @@ export const getEventsByType = query({
       .query("events")
       .filter((q) => q.eq(q.field("eventType"), args.eventType))
       .order("desc")
-      .take(limit)
-      .collect();
+      .take(limit);
 
     return events;
   },

@@ -1126,6 +1126,25 @@ export default function Home() {
                       </div>
                     </div>
 
+                    <div>
+                      <label className="block font-semibold mb-2">🕒 Preferred Pickup Time</label>
+                      <select
+                        value={selectedTimeSlot}
+                        onChange={(e) => setSelectedTimeSlot(e.target.value)}
+                        className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
+                      >
+                        <option value="">Any time works for me</option>
+                        {availableTimeSlots.map((slot, index) => (
+                          <option key={index} value={slot}>
+                            {slot}
+                          </option>
+                        ))}
+                      </select>
+                      <div className="text-sm text-gray-600 mt-1">
+                        💡 Select your preferred pickup time to match with sellers who are available then
+                      </div>
+                    </div>
+
                     <button
                       onClick={handleBuyerSearch}
                       disabled={isMatching}

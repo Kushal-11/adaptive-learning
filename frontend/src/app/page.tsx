@@ -670,7 +670,7 @@ export default function Home() {
                     <h1 className="text-4xl font-bold text-white transition-all duration-300">
                       Agentic Marketplace
                     </h1>
-                    <p className="text-gray-300 text-lg font-medium mt-1 transition-all duration-300">AI Agents with Convex Database - Professional Experience</p>
+                    <p className="text-gray-300 text-lg font-medium mt-1 transition-all duration-300">You Count It, We'll Manage It. It's That Simple</p>
                   </div>
                 </div>
               </div>
@@ -821,12 +821,12 @@ export default function Home() {
 
                         <div className="bg-white rounded-lg p-4 border border-gray-200">
                           <h4 className="font-bold mb-2 flex items-center gap-2">
-                            AI Analysis
+                            AI Analysis (GPT-5)
                           </h4>
                           {isAnalyzing ? (
                             <div className="text-center">
                               <div className="w-8 h-8 border-2 border-slate-300 border-t-slate-600 rounded-full animate-spin mx-auto mb-2"></div>
-                              <div className="text-sm">Analyzing image...</div>
+                              <div className="text-sm">GPT-5 analyzing image...</div>
                             </div>
                           ) : analysis ? (
                             <div className="space-y-2 text-sm">
@@ -835,10 +835,11 @@ export default function Home() {
                               <div><strong>Suggested Price:</strong> ${analysis.suggestedPrice}</div>
                               <div><strong>Market Average:</strong> ${analysis.marketComparison.averagePrice}</div>
                               <div><strong>Confidence:</strong> {Math.round(analysis.confidence * 100)}%</div>
+                              <div className="text-xs text-gray-400 mt-2">Powered by GPT-5</div>
                             </div>
                           ) : (
                             <div className="text-sm text-gray-500">
-                              Upload image for AI analysis
+                              Upload image for GPT-5 analysis
                             </div>
                           )}
                         </div>

@@ -1,0 +1,2074 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced Multi-Agent Marketplace</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .profile-selector {
+            background: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            border-bottom: 2px solid #e9ecef;
+        }
+        
+        .profile-btn {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            margin: 0 10px;
+            transition: all 0.3s;
+        }
+        
+        .profile-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(79, 172, 254, 0.4);
+        }
+        
+        .profile-btn.active {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        }
+        
+        .workflow-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            padding: 30px;
+        }
+        
+        .agent-panel {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            border: 2px solid #e9ecef;
+            position: relative;
+        }
+        
+        .agent-panel.active {
+            border-color: #4facfe;
+            box-shadow: 0 0 20px rgba(79, 172, 254, 0.3);
+        }
+        
+        .agent-panel h2 {
+            color: #333;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #28a745;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: #4facfe;
+        }
+        
+        .time-range-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .time-range-group input {
+            flex: 1;
+        }
+        
+        .time-range-separator {
+            font-weight: bold;
+            color: #666;
+        }
+        
+        .image-upload {
+            border: 2px dashed #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .image-upload:hover {
+            border-color: #4facfe;
+            background: #f0f9ff;
+        }
+        
+        .image-upload.dragover {
+            border-color: #28a745;
+            background: #f0fff4;
+        }
+        
+        .image-preview {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .image-preview img {
+            width: 100%;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 2px solid #e9ecef;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: transform 0.2s;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+        }
+        
+        .agent-response {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            border-left: 4px solid #4facfe;
+            min-height: 100px;
+        }
+        
+        .agent-response.thinking {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: shimmer 2s infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        
+        .product-database {
+            grid-column: 1 / -1;
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 20px;
+        }
+        
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .product-card {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            border: 2px solid #e9ecef;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .product-card:hover {
+            border-color: #4facfe;
+            transform: translateY(-2px);
+        }
+        
+        .product-card.selected {
+            border-color: #28a745;
+            background: #f8fff9;
+        }
+        
+        .product-image {
+            width: 100%;
+            height: 150px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+        
+        .price-display {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #4facfe;
+            margin: 10px 0;
+        }
+        
+        .timeslot-range {
+            background: #e9ecef;
+            padding: 8px 12px;
+            border-radius: 6px;
+            margin: 5px;
+            display: inline-block;
+            font-size: 0.9em;
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #28a745;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            z-index: 1000;
+            transform: translateX(400px);
+            transition: transform 0.3s;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        .notification.email {
+            background: #007bff;
+        }
+        
+        .notification.deal {
+            background: #ffc107;
+            color: #333;
+        }
+        
+        .match-proposals {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .match-card {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            border: 2px solid #e9ecef;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .match-card:hover {
+            border-color: #4facfe;
+            transform: translateY(-2px);
+        }
+        
+        .match-card.selected {
+            border-color: #28a745;
+            background: #f8fff9;
+        }
+        
+        .negotiation-flow {
+            grid-column: 1 / -1;
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 20px;
+        }
+        
+        .negotiation-round {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+            border-left: 4px solid #ffc107;
+        }
+        
+        .deal-sheet {
+            background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .profile-section {
+            display: none;
+        }
+        
+        .profile-section.active {
+            display: block;
+        }
+        
+        .profile-info {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            border-left: 4px solid #28a745;
+        }
+        
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🤖 Enhanced Multi-Agent Marketplace</h1>
+            <p>AI Agents with Time Ranges, Image Upload, Profiles & Email Notifications</p>
+        </div>
+        
+        <!-- Profile Selector -->
+        <div class="profile-selector">
+            <h3>Choose Your Profile</h3>
+            <button class="profile-btn active" onclick="switchProfile('buyer')" id="buyer-profile-btn">
+                🛒 Buyer Profile
+            </button>
+            <button class="profile-btn" onclick="switchProfile('seller')" id="seller-profile-btn">
+                🏪 Seller Profile
+            </button>
+        </div>
+
+        <!-- Buyer Profile Section -->
+        <div class="profile-section active" id="buyer-section">
+            <div class="workflow-container">
+                <!-- Buyer Panel -->
+                <div class="agent-panel active" id="buyer-panel">
+                    <h2><span class="status-dot"></span>🛒 Buyer Agent</h2>
+                    
+                    <div class="profile-info">
+                        <h4>👤 Buyer Profile</h4>
+                        <p><strong>Name:</strong> <span id="buyer-name">John Smith</span></p>
+                        <p><strong>Email:</strong> <span id="buyer-email">john.smith@email.com</span></p>
+                        <p><strong>Location:</strong> <span id="buyer-location">San Francisco, CA</span></p>
+                        <p><strong>Verified:</strong> ✅ Email & Phone</p>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Looking For</label>
+                        <select id="buyer-category">
+                            <option value="">Select category...</option>
+                            <option value="electronics">Electronics</option>
+                            <option value="clothing">Clothing</option>
+                            <option value="furniture">Furniture</option>
+                            <option value="appliances">Appliances</option>
+                            <option value="sports">Sports Equipment</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Search Terms</label>
+                        <input type="text" id="buyer-search" placeholder="iPhone 14 Pro, MacBook, fan, etc." oninput="handleRealTimeSearch(this.value)">
+                        <div style="font-size: 0.8em; color: #666; margin-top: 5px;">
+                            💡 Try searching: "fan", "iPhone", "laptop", "chair"
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Budget Range ($)</label>
+                        <div style="display: flex; gap: 10px;">
+                            <input type="number" id="buyer-min" placeholder="Min" style="width: 48%;">
+                            <input type="number" id="buyer-max" placeholder="Max" style="width: 48%;">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Acceptable Condition</label>
+                        <select id="buyer-condition" multiple>
+                            <option value="new">New</option>
+                            <option value="like-new">Like New</option>
+                            <option value="good">Good</option>
+                            <option value="fair">Fair</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Pickup Radius (km)</label>
+                        <input type="number" id="buyer-radius" placeholder="10">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Available Pickup Time Ranges</label>
+                        <div class="time-range-group">
+                            <input type="datetime-local" id="buyer-time1-start">
+                            <span class="time-range-separator">to</span>
+                            <input type="datetime-local" id="buyer-time1-end">
+                        </div>
+                        <div class="time-range-group" style="margin-top: 10px;">
+                            <input type="datetime-local" id="buyer-time2-start">
+                            <span class="time-range-separator">to</span>
+                            <input type="datetime-local" id="buyer-time2-end">
+                        </div>
+                    </div>
+                    
+                    <button class="btn" onclick="processBuyerQuery()">🔍 Find Matches</button>
+                    
+                    <div class="agent-response" id="buyer-response">
+                        <em>Buyer agent ready - Enter your search criteria to find matches!</em>
+                    </div>
+                </div>
+
+                <!-- Product Database Display -->
+                <div class="agent-panel">
+                    <h2>🗄️ Available Products</h2>
+                    <div class="product-grid" id="product-grid">
+                        <!-- Products will be populated here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Seller Profile Section -->
+        <div class="profile-section" id="seller-section">
+            <div class="workflow-container">
+                <!-- Seller Panel -->
+                <div class="agent-panel active" id="seller-panel">
+                    <h2><span class="status-dot"></span>🏪 Seller Agent</h2>
+                    
+                    <div class="profile-info">
+                        <h4>👤 Seller Profile</h4>
+                        <p><strong>Name:</strong> <span id="seller-name">Sarah Johnson</span></p>
+                        <p><strong>Email:</strong> <span id="seller-email">sarah.johnson@email.com</span></p>
+                        <p><strong>Location:</strong> <span id="seller-location">Palo Alto, CA</span></p>
+                        <p><strong>Rating:</strong> ⭐⭐⭐⭐⭐ (4.8/5)</p>
+                        <p><strong>Verified:</strong> ✅ Email, Phone & ID</p>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Item Category</label>
+                        <select id="seller-category">
+                            <option value="">Select category...</option>
+                            <option value="electronics">Electronics</option>
+                            <option value="clothing">Clothing</option>
+                            <option value="furniture">Furniture</option>
+                            <option value="appliances">Appliances</option>
+                            <option value="sports">Sports Equipment</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Make & Model</label>
+                        <input type="text" id="seller-model" placeholder="e.g., iPhone 14 Pro">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Variant</label>
+                        <input type="text" id="seller-variant" placeholder="e.g., 256GB Space Black">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Original Price ($)</label>
+                        <input type="number" id="seller-price" placeholder="1099">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Your Pricing Strategy</label>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
+                            <div>
+                                <label style="font-size: 0.9em; color: #dc3545;">Quick Sale ($)</label>
+                                <input type="number" id="seller-quick-sale" placeholder="659">
+                            </div>
+                            <div>
+                                <label style="font-size: 0.9em; color: #28a745;">Fair Market ($)</label>
+                                <input type="number" id="seller-fair-market" placeholder="769">
+                            </div>
+                            <div>
+                                <label style="font-size: 0.9em; color: #ffc107;">Hold Out ($)</label>
+                                <input type="number" id="seller-hold-out" placeholder="879">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Pickup Location</label>
+                        <div style="display: flex; gap: 10px; align-items: center;">
+                            <input type="text" id="seller-location" placeholder="Enter your address or use current location" style="flex: 1;">
+                            <button type="button" class="btn-secondary" onclick="getCurrentLocation()" style="padding: 8px 12px; font-size: 0.9em;">📍 Use Current</button>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Known Defects</label>
+                        <textarea id="seller-defects" placeholder="Minor scratches on screen, small dent on back corner"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Product Images</label>
+                        <div class="image-upload" onclick="document.getElementById('image-input').click()">
+                            <p>📷 Click to upload images or drag & drop</p>
+                            <p style="font-size: 0.9em; color: #666; margin-top: 10px;">
+                                Upload multiple angles: front, back, sides, defects
+                            </p>
+                        </div>
+                        <input type="file" id="image-input" multiple accept="image/*" style="display: none;" onchange="handleImageUpload(event)">
+                        <div class="image-preview" id="image-preview"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Available Pickup Time Ranges</label>
+                        <div class="time-range-group">
+                            <input type="datetime-local" id="seller-time1-start">
+                            <span class="time-range-separator">to</span>
+                            <input type="datetime-local" id="seller-time1-end">
+                        </div>
+                        <div class="time-range-group" style="margin-top: 10px;">
+                            <input type="datetime-local" id="seller-time2-start">
+                            <span class="time-range-separator">to</span>
+                            <input type="datetime-local" id="seller-time2-end">
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn" onclick="processSellerListing()">🚀 List Item</button>
+                        <button class="btn-secondary" onclick="clearSellerForm()" style="background: linear-gradient(135deg, #ffc107 0%, #ff8c00 100%);">🔄 Add Another</button>
+                    </div>
+                    
+                    <div class="agent-response" id="seller-response">
+                        <em>Seller intake agent ready to process your listing...</em>
+                    </div>
+                </div>
+
+                <!-- Seller Dashboard -->
+                <div class="agent-panel">
+                    <h2>📊 Seller Dashboard</h2>
+                    <div id="seller-dashboard">
+                        <div style="text-align: center; padding: 40px; color: #666;">
+                            <p>📝 No active listings</p>
+                            <p style="font-size: 0.9em; margin-top: 10px;">Create your first listing to see analytics here</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Match Results -->
+        <div class="negotiation-flow hidden" id="match-section">
+            <h2>🎯 Matcher Agent Results</h2>
+            <p style="color: #666; margin-bottom: 20px;">Select multiple matches to start competitive negotiations. The best deal will be your final choice!</p>
+            <div id="match-proposals" class="match-proposals"></div>
+            <div style="margin: 20px 0; text-align: center;">
+                <button class="btn" onclick="startCompetitiveNegotiation()" id="negotiate-btn" disabled style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%);">
+                    🤝 Start Competitive Negotiation (<span id="selected-count">0</span> selected)
+                </button>
+            </div>
+        </div>
+
+        <!-- Negotiation Flow -->
+        <div class="negotiation-flow hidden" id="negotiation-section">
+            <h2>🤝 Deal Negotiator Agent</h2>
+            <div id="negotiation-rounds"></div>
+            <div id="final-deal" class="deal-sheet" style="display: none;"></div>
+        </div>
+    </div>
+
+    <!-- Notification Container -->
+    <div id="notification" class="notification"></div>
+
+    <script>
+        // Global state
+        let currentProfile = 'buyer';
+        let sellerListings = []; // Changed to array for multiple listings
+        let buyerQuery = null;
+        let matchProposals = [];
+        let selectedMatches = []; // Changed to array for multiple selections
+        let uploadedImages = [];
+
+        // Enhanced Dummy Product Database - 24 diverse products across multiple categories
+        const productDatabase = [
+            // Electronics
+            {
+                id: 'prod-001',
+                category: 'electronics',
+                makeModel: 'iPhone 14 Pro',
+                variant: '256GB Space Black',
+                condition: 'good',
+                price: 750,
+                seller: 'Sarah Johnson',
+                sellerEmail: 'sarah.johnson@email.com',
+                location: 'Palo Alto, CA',
+                distance: 3.2,
+                images: ['📱'],
+                timeRanges: [
+                    { start: '2024-02-01T18:00', end: '2024-02-01T20:00' },
+                    { start: '2024-02-02T10:00', end: '2024-02-02T12:00' }
+                ],
+                defects: 'Minor scratches on screen protector',
+                accessories: ['Original box', 'Charger', 'EarPods']
+            },
+            {
+                id: 'prod-002',
+                category: 'electronics',
+                makeModel: 'MacBook Air M2',
+                variant: '256GB Silver',
+                condition: 'like-new',
+                price: 1050,
+                seller: 'Mike Chen',
+                sellerEmail: 'mike.chen@email.com',
+                location: 'San Francisco, CA',
+                distance: 5.1,
+                images: ['💻'],
+                timeRanges: [
+                    { start: '2024-02-01T14:00', end: '2024-02-01T18:00' },
+                    { start: '2024-02-03T09:00', end: '2024-02-03T17:00' }
+                ],
+                defects: 'None',
+                accessories: ['Original box', 'Charger', 'Documentation']
+            },
+            {
+                id: 'prod-003',
+                category: 'electronics',
+                makeModel: 'AirPods Pro',
+                variant: '2nd Generation',
+                condition: 'like-new',
+                price: 180,
+                seller: 'David Kim',
+                sellerEmail: 'david.kim@email.com',
+                location: 'Sunnyvale, CA',
+                distance: 12.1,
+                images: ['🎧'],
+                timeRanges: [
+                    { start: '2024-02-02T12:00', end: '2024-02-02T15:00' },
+                    { start: '2024-02-02T18:00', end: '2024-02-02T21:00' }
+                ],
+                defects: 'None',
+                accessories: ['Charging case', 'Extra ear tips', 'Original box']
+            },
+            {
+                id: 'prod-004',
+                category: 'electronics',
+                makeModel: 'iPad Air',
+                variant: '64GB Wi-Fi Space Gray',
+                condition: 'good',
+                price: 420,
+                seller: 'Emma Wilson',
+                sellerEmail: 'emma.wilson@email.com',
+                location: 'San Jose, CA',
+                distance: 18.5,
+                images: ['📱'],
+                timeRanges: [
+                    { start: '2024-02-01T16:00', end: '2024-02-01T19:00' }
+                ],
+                defects: 'Small scratch on back, screen protector applied',
+                accessories: ['Charger', 'Screen protector']
+            },
+            {
+                id: 'prod-005',
+                category: 'electronics',
+                makeModel: 'Nintendo Switch',
+                variant: 'OLED Model',
+                condition: 'good',
+                price: 280,
+                seller: 'Alex Rodriguez',
+                sellerEmail: 'alex.rodriguez@email.com',
+                location: 'Santa Clara, CA',
+                distance: 14.3,
+                images: ['🎮'],
+                timeRanges: [
+                    { start: '2024-02-02T19:00', end: '2024-02-02T21:00' },
+                    { start: '2024-02-03T14:00', end: '2024-02-03T17:00' }
+                ],
+                defects: 'Joy-Con slight drift on left controller',
+                accessories: ['Dock', 'Joy-Con controllers', 'Pro Controller', '3 games']
+            },
+            {
+                id: 'prod-006',
+                category: 'electronics',
+                makeModel: 'Sony Headphones',
+                variant: 'WH-1000XM4',
+                condition: 'good',
+                price: 220,
+                seller: 'Ryan Cooper',
+                sellerEmail: 'ryan.cooper@email.com',
+                location: 'Palo Alto, CA',
+                distance: 3.2,
+                images: ['🎧'],
+                timeRanges: [
+                    { start: '2024-02-01T19:00', end: '2024-02-01T22:00' }
+                ],
+                defects: 'Ear pads slightly compressed, minor wear on headband',
+                accessories: ['Carrying case', 'Audio cable', 'USB-C cable']
+            },
+            {
+                id: 'prod-007',
+                category: 'electronics',
+                makeModel: 'Samsung TV',
+                variant: '55" QLED 4K',
+                condition: 'like-new',
+                price: 680,
+                seller: 'Michelle Wang',
+                sellerEmail: 'michelle.wang@email.com',
+                location: 'Fremont, CA',
+                distance: 18.7,
+                images: ['📺'],
+                timeRanges: [
+                    { start: '2024-02-03T12:00', end: '2024-02-03T16:00' }
+                ],
+                defects: 'None',
+                accessories: ['Remote', 'Stand', 'Power cable', 'Manual']
+            },
+
+            // Appliances
+            {
+                id: 'prod-008',
+                category: 'appliances',
+                makeModel: 'Dyson V15',
+                variant: 'Cordless Vacuum',
+                condition: 'good',
+                price: 320,
+                seller: 'Lisa Wang',
+                sellerEmail: 'lisa.wang@email.com',
+                location: 'Mountain View, CA',
+                distance: 8.3,
+                images: ['🧹'],
+                timeRanges: [
+                    { start: '2024-02-01T16:00', end: '2024-02-01T19:00' }
+                ],
+                defects: 'Minor wear on handle grip',
+                accessories: ['Multiple attachments', 'Wall mount', 'Extra filter']
+            },
+            {
+                id: 'prod-009',
+                category: 'appliances',
+                makeModel: 'Ninja Blender',
+                variant: 'Professional BL610',
+                condition: 'fair',
+                price: 85,
+                seller: 'Robert Taylor',
+                sellerEmail: 'robert.taylor@email.com',
+                location: 'Fremont, CA',
+                distance: 18.7,
+                images: ['🥤'],
+                timeRanges: [
+                    { start: '2024-02-01T19:00', end: '2024-02-01T21:00' }
+                ],
+                defects: 'Base has some staining, blades slightly dull',
+                accessories: ['Multiple cups', 'Lids', 'Recipe book']
+            },
+            {
+                id: 'prod-010',
+                category: 'appliances',
+                makeModel: 'KitchenAid Stand Mixer',
+                variant: 'Artisan 5-Qt',
+                condition: 'like-new',
+                price: 280,
+                seller: 'Maria Garcia',
+                sellerEmail: 'maria.garcia@email.com',
+                location: 'Cupertino, CA',
+                distance: 9.8,
+                images: ['🍰'],
+                timeRanges: [
+                    { start: '2024-02-02T10:00', end: '2024-02-02T14:00' },
+                    { start: '2024-02-03T15:00', end: '2024-02-03T18:00' }
+                ],
+                defects: 'None',
+                accessories: ['Dough hook', 'Wire whip', 'Flat beater', 'Pouring shield']
+            },
+            {
+                id: 'prod-011',
+                category: 'appliances',
+                makeModel: 'Instant Pot',
+                variant: 'Duo 8-Qt',
+                condition: 'good',
+                price: 65,
+                seller: 'James Park',
+                sellerEmail: 'james.park@email.com',
+                location: 'Milpitas, CA',
+                distance: 22.1,
+                images: ['🍲'],
+                timeRanges: [
+                    { start: '2024-02-01T17:00', end: '2024-02-01T20:00' }
+                ],
+                defects: 'Some discoloration on inner pot',
+                accessories: ['Steam rack', 'Measuring cup', 'Recipe booklet']
+            },
+            {
+                id: 'prod-012',
+                category: 'appliances',
+                makeModel: 'Roomba',
+                variant: 'i7+ Robot Vacuum',
+                condition: 'good',
+                price: 380,
+                seller: 'Daniel Kim',
+                sellerEmail: 'daniel.kim@email.com',
+                location: 'Sunnyvale, CA',
+                distance: 12.1,
+                images: ['🤖'],
+                timeRanges: [
+                    { start: '2024-02-01T14:00', end: '2024-02-01T17:00' },
+                    { start: '2024-02-03T16:00', end: '2024-02-03T19:00' }
+                ],
+                defects: 'Brushes need replacement, minor scuffs',
+                accessories: ['Charging dock', 'Extra filters', 'Virtual wall barriers']
+            },
+            {
+                id: 'prod-013',
+                category: 'appliances',
+                makeModel: 'Nespresso Machine',
+                variant: 'VertuoPlus',
+                condition: 'like-new',
+                price: 120,
+                seller: 'Laura Martinez',
+                sellerEmail: 'laura.martinez@email.com',
+                location: 'San Mateo, CA',
+                distance: 17.8,
+                images: ['☕'],
+                timeRanges: [
+                    { start: '2024-02-02T11:00', end: '2024-02-02T14:00' }
+                ],
+                defects: 'None',
+                accessories: ['Sample pods', 'Water tank', 'Drip tray', 'Manual']
+            },
+
+            // Sports Equipment
+            {
+                id: 'prod-014',
+                category: 'sports',
+                makeModel: 'Peloton Bike',
+                variant: 'Gen 4',
+                condition: 'good',
+                price: 1200,
+                seller: 'Jennifer Lopez',
+                sellerEmail: 'jennifer.lopez@email.com',
+                location: 'San Jose, CA',
+                distance: 15.2,
+                images: ['🚴'],
+                timeRanges: [
+                    { start: '2024-02-03T08:00', end: '2024-02-03T12:00' }
+                ],
+                defects: 'Seat shows wear, pedals slightly loose',
+                accessories: ['Heart rate monitor', 'Weights', 'Mat', 'Water bottle']
+            },
+            {
+                id: 'prod-015',
+                category: 'sports',
+                makeModel: 'Trek Mountain Bike',
+                variant: 'X-Caliber 8',
+                condition: 'good',
+                price: 650,
+                seller: 'Chris Johnson',
+                sellerEmail: 'chris.johnson@email.com',
+                location: 'Los Altos, CA',
+                distance: 7.4,
+                images: ['🚵'],
+                timeRanges: [
+                    { start: '2024-02-02T09:00', end: '2024-02-02T12:00' },
+                    { start: '2024-02-02T15:00', end: '2024-02-02T18:00' }
+                ],
+                defects: 'Chain needs adjustment, minor scratches on frame',
+                accessories: ['Helmet', 'Water bottle holder', 'Bike lock']
+            },
+            {
+                id: 'prod-016',
+                category: 'sports',
+                makeModel: 'Bowflex Dumbbells',
+                variant: 'SelectTech 552',
+                condition: 'like-new',
+                price: 280,
+                seller: 'Kevin Lee',
+                sellerEmail: 'kevin.lee@email.com',
+                location: 'Redwood City, CA',
+                distance: 11.6,
+                images: ['🏋️'],
+                timeRanges: [
+                    { start: '2024-02-01T18:00', end: '2024-02-01T21:00' }
+                ],
+                defects: 'None',
+                accessories: ['Stand', 'Workout guide', 'DVD set']
+            },
+            {
+                id: 'prod-017',
+                category: 'sports',
+                makeModel: 'Yeti Cooler',
+                variant: 'Tundra 45',
+                condition: 'good',
+                price: 180,
+                seller: 'Steve Johnson',
+                sellerEmail: 'steve.johnson@email.com',
+                location: 'Santa Cruz, CA',
+                distance: 28.5,
+                images: ['🧊'],
+                timeRanges: [
+                    { start: '2024-02-02T13:00', end: '2024-02-02T16:00' }
+                ],
+                defects: 'Minor dents on exterior, latches work perfectly',
+                accessories: ['Divider', 'Bottle opener']
+            },
+            {
+                id: 'prod-018',
+                category: 'sports',
+                makeModel: 'Electric Scooter',
+                variant: 'Xiaomi Mi Pro 2',
+                condition: 'fair',
+                price: 320,
+                seller: 'Carlos Rodriguez',
+                sellerEmail: 'carlos.rodriguez@email.com',
+                location: 'San Jose, CA',
+                distance: 15.2,
+                images: ['🛴'],
+                timeRanges: [
+                    { start: '2024-02-01T16:00', end: '2024-02-01T19:00' },
+                    { start: '2024-02-03T14:00', end: '2024-02-03T17:00' }
+                ],
+                defects: 'Battery holds 80% charge, handlebar grips worn',
+                accessories: ['Charger', 'Phone mount', 'Bell']
+            },
+
+            // Furniture
+            {
+                id: 'prod-019',
+                category: 'furniture',
+                makeModel: 'Herman Miller Chair',
+                variant: 'Aeron Size B',
+                condition: 'good',
+                price: 450,
+                seller: 'Rachel Green',
+                sellerEmail: 'rachel.green@email.com',
+                location: 'Menlo Park, CA',
+                distance: 6.8,
+                images: ['🪑'],
+                timeRanges: [
+                    { start: '2024-02-02T14:00', end: '2024-02-02T17:00' },
+                    { start: '2024-02-03T10:00', end: '2024-02-03T13:00' }
+                ],
+                defects: 'Armrests show wear, mesh slightly stretched',
+                accessories: ['Original documentation']
+            },
+            {
+                id: 'prod-020',
+                category: 'furniture',
+                makeModel: 'IKEA Desk',
+                variant: 'BEKANT 63x31"',
+                condition: 'fair',
+                price: 85,
+                seller: 'Tom Wilson',
+                sellerEmail: 'tom.wilson@email.com',
+                location: 'Foster City, CA',
+                distance: 13.9,
+                images: ['🗃️'],
+                timeRanges: [
+                    { start: '2024-02-01T15:00', end: '2024-02-01T18:00' }
+                ],
+                defects: 'Surface scratches, one leg slightly wobbly',
+                accessories: ['Assembly instructions']
+            },
+            {
+                id: 'prod-021',
+                category: 'furniture',
+                makeModel: 'West Elm Sofa',
+                variant: 'Andes 3-Seater',
+                condition: 'good',
+                price: 850,
+                seller: 'Sophie Chen',
+                sellerEmail: 'sophie.chen@email.com',
+                location: 'Burlingame, CA',
+                distance: 16.2,
+                images: ['🛋️'],
+                timeRanges: [
+                    { start: '2024-02-03T11:00', end: '2024-02-03T15:00' }
+                ],
+                defects: 'Minor stain on one cushion, slight fading',
+                accessories: ['Extra throw pillows', 'Care instructions']
+            },
+
+            // Clothing & Accessories
+            {
+                id: 'prod-022',
+                category: 'clothing',
+                makeModel: 'Patagonia Jacket',
+                variant: 'Better Sweater Fleece',
+                condition: 'like-new',
+                price: 85,
+                seller: 'Anna Davis',
+                sellerEmail: 'anna.davis@email.com',
+                location: 'Half Moon Bay, CA',
+                distance: 25.3,
+                images: ['🧥'],
+                timeRanges: [
+                    { start: '2024-02-02T16:00', end: '2024-02-02T19:00' }
+                ],
+                defects: 'None',
+                accessories: ['Original tags']
+            },
+            {
+                id: 'prod-023',
+                category: 'clothing',
+                makeModel: 'Ray-Ban Sunglasses',
+                variant: 'Aviator Classic',
+                condition: 'good',
+                price: 95,
+                seller: 'Mark Thompson',
+                sellerEmail: 'mark.thompson@email.com',
+                location: 'Saratoga, CA',
+                distance: 19.4,
+                images: ['🕶️'],
+                timeRanges: [
+                    { start: '2024-02-01T13:00', end: '2024-02-01T16:00' },
+                    { start: '2024-02-02T20:00', end: '2024-02-02T22:00' }
+                ],
+                defects: 'Minor scratches on lenses, nose pads slightly worn',
+                accessories: ['Case', 'Cleaning cloth']
+            },
+            {
+                id: 'prod-024',
+                category: 'clothing',
+                makeModel: 'Levi\'s Jeans',
+                variant: '501 Original Fit',
+                condition: 'good',
+                price: 35,
+                seller: 'Jessica Brown',
+                sellerEmail: 'jessica.brown@email.com',
+                location: 'Campbell, CA',
+                distance: 12.7,
+                images: ['👖'],
+                timeRanges: [
+                    { start: '2024-02-02T17:00', end: '2024-02-02T20:00' }
+                ],
+                defects: 'Slight fading, minor wear on knees',
+                accessories: ['Original tags']
+            },
+
+            // Fans - Adding fan products as requested
+            {
+                id: 'prod-025',
+                category: 'appliances',
+                makeModel: 'Dyson Pure Cool',
+                variant: 'TP01 Tower Fan',
+                condition: 'good',
+                price: 180,
+                seller: 'Michael Brown',
+                sellerEmail: 'michael.brown@email.com',
+                location: 'San Francisco, CA',
+                distance: 4.2,
+                images: ['🌀'],
+                timeRanges: [
+                    { start: '2024-02-01T15:00', end: '2024-02-01T18:00' },
+                    { start: '2024-02-02T19:00', end: '2024-02-02T21:00' }
+                ],
+                defects: 'Remote control missing, minor dust buildup',
+                accessories: ['Filter', 'Manual']
+            },
+            {
+                id: 'prod-026',
+                category: 'appliances',
+                makeModel: 'Honeywell Tower Fan',
+                variant: 'HYF290B Quietset',
+                condition: 'like-new',
+                price: 85,
+                seller: 'Patricia Wilson',
+                sellerEmail: 'patricia.wilson@email.com',
+                location: 'Palo Alto, CA',
+                distance: 2.8,
+                images: ['🌀'],
+                timeRanges: [
+                    { start: '2024-02-02T14:00', end: '2024-02-02T17:00' }
+                ],
+                defects: 'None',
+                accessories: ['Remote control', 'Manual', 'Original box']
+            },
+            {
+                id: 'prod-027',
+                category: 'appliances',
+                makeModel: 'Lasko Pedestal Fan',
+                variant: '18" Adjustable Height',
+                condition: 'fair',
+                price: 45,
+                seller: 'Robert Garcia',
+                sellerEmail: 'robert.garcia@email.com',
+                location: 'San Jose, CA',
+                distance: 16.3,
+                images: ['🌀'],
+                timeRanges: [
+                    { start: '2024-02-01T17:00', end: '2024-02-01T20:00' }
+                ],
+                defects: 'Slight wobble at highest speed, some rust on base',
+                accessories: ['Assembly instructions']
+            },
+            {
+                id: 'prod-028',
+                category: 'appliances',
+                makeModel: 'Vornado Whole Room',
+                variant: '630 Mid-Size Air Circulator',
+                condition: 'good',
+                price: 65,
+                seller: 'Linda Martinez',
+                sellerEmail: 'linda.martinez@email.com',
+                location: 'Mountain View, CA',
+                distance: 9.1,
+                images: ['🌀'],
+                timeRanges: [
+                    { start: '2024-02-02T11:00', end: '2024-02-02T14:00' },
+                    { start: '2024-02-03T16:00', end: '2024-02-03T19:00' }
+                ],
+                defects: 'Minor scuffs on housing, works perfectly',
+                accessories: ['Manual', 'Warranty card']
+            },
+            {
+                id: 'prod-029',
+                category: 'appliances',
+                makeModel: 'Holmes Desktop Fan',
+                variant: '12" Personal Table Fan',
+                condition: 'good',
+                price: 25,
+                seller: 'David Lee',
+                sellerEmail: 'david.lee@email.com',
+                location: 'Sunnyvale, CA',
+                distance: 11.7,
+                images: ['🌀'],
+                timeRanges: [
+                    { start: '2024-02-01T18:00', end: '2024-02-01T21:00' }
+                ],
+                defects: 'Cord slightly frayed near plug, fan works fine',
+                accessories: ['None']
+            },
+            {
+                id: 'prod-030',
+                category: 'appliances',
+                makeModel: 'Ceiling Fan',
+                variant: 'Hunter Builder Plus 52"',
+                condition: 'like-new',
+                price: 120,
+                seller: 'Jennifer Adams',
+                sellerEmail: 'jennifer.adams@email.com',
+                location: 'Fremont, CA',
+                distance: 19.8,
+                images: ['🌀'],
+                timeRanges: [
+                    { start: '2024-02-03T09:00', end: '2024-02-03T12:00' }
+                ],
+                defects: 'None - recently removed during renovation',
+                accessories: ['Remote control', 'Light kit', 'Installation hardware', 'Manual']
+            }
+        ];
+
+        // Get current location function - Fixed to properly fill the location field
+        function getCurrentLocation() {
+            const locationInput = document.getElementById('seller-location');
+            const button = event.target;
+            
+            // Show loading state
+            button.textContent = '📍 Getting...';
+            button.disabled = true;
+            
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    function(position) {
+                        // Get actual coordinates
+                        const lat = position.coords.latitude.toFixed(4);
+                        const lng = position.coords.longitude.toFixed(4);
+                        const address = `${lat}, ${lng} - San Francisco, CA`;
+                        
+                        // Fill the location input field
+                        locationInput.value = address;
+                        locationInput.style.background = '#e8f5e8';
+                        locationInput.style.border = '2px solid #28a745';
+                        
+                        // Update button appearance
+                        button.textContent = '✅ Located';
+                        button.style.background = '#28a745';
+                        button.style.color = 'white';
+                        
+                        showNotification(`📍 Location detected: ${lat}, ${lng}`, 'success');
+                        
+                        // Reset button after 3 seconds
+                        setTimeout(() => {
+                            button.textContent = '📍 Use Current';
+                            button.disabled = false;
+                            button.style.background = '';
+                            button.style.color = '';
+                        }, 3000);
+                    },
+                    function(error) {
+                        console.log('Geolocation error:', error);
+                        // Fallback to a default location
+                        const fallbackAddress = "123 Main St, San Francisco, CA 94102";
+                        locationInput.value = fallbackAddress;
+                        locationInput.style.background = '#fff3cd';
+                        locationInput.style.border = '2px solid #ffc107';
+                        
+                        button.textContent = '📍 Use Current';
+                        button.disabled = false;
+                        
+                        showNotification('📍 GPS access denied - using default location', 'info');
+                    }
+                );
+            } else {
+                const fallbackAddress = "123 Main St, San Francisco, CA 94102";
+                locationInput.value = fallbackAddress;
+                locationInput.style.background = '#f8d7da';
+                locationInput.style.border = '2px solid #dc3545';
+                
+                button.textContent = '📍 Use Current';
+                button.disabled = false;
+                
+                showNotification('📍 Geolocation not supported - using default location', 'info');
+            }
+        }
+
+        // Profile switching
+        function switchProfile(profile) {
+            currentProfile = profile;
+            
+            // Update button states
+            document.getElementById('buyer-profile-btn').classList.toggle('active', profile === 'buyer');
+            document.getElementById('seller-profile-btn').classList.toggle('active', profile === 'seller');
+            
+            // Show/hide sections
+            document.getElementById('buyer-section').classList.toggle('active', profile === 'buyer');
+            document.getElementById('seller-section').classList.toggle('active', profile === 'seller');
+            
+            // Hide match/negotiation sections when switching profiles
+            document.getElementById('match-section').classList.add('hidden');
+            document.getElementById('negotiation-section').classList.add('hidden');
+            
+            if (profile === 'buyer') {
+                displayProducts();
+            }
+        }
+
+        // Display products in the database with search filtering
+        function displayProducts(searchTerm = '') {
+            const grid = document.getElementById('product-grid');
+            
+            // Filter products based on search term
+            let filteredProducts = productDatabase;
+            if (searchTerm.trim()) {
+                filteredProducts = productDatabase.filter(product => {
+                    const searchLower = searchTerm.toLowerCase();
+                    return product.makeModel.toLowerCase().includes(searchLower) ||
+                           product.variant.toLowerCase().includes(searchLower) ||
+                           product.category.toLowerCase().includes(searchLower);
+                });
+            }
+            
+            if (filteredProducts.length === 0) {
+                grid.innerHTML = `
+                    <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: #666;">
+                        <h3>🔍 No products found</h3>
+                        <p>Try adjusting your search terms</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            grid.innerHTML = filteredProducts.map(product => `
+                <div class="product-card" onclick="viewProduct('${product.id}')">
+                    <div class="product-image" style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); position: relative;">
+                        <div style="font-size: 4em; margin-bottom: 10px;">${product.images[0]}</div>
+                        <div style="position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.7); color: white; padding: 4px 8px; border-radius: 12px; font-size: 0.8em;">
+                            ${product.condition.toUpperCase()}
+                        </div>
+                        ${product.seller === document.getElementById('seller-name').textContent ? 
+                            '<div style="position: absolute; top: 10px; left: 10px; background: #28a745; color: white; padding: 4px 8px; border-radius: 12px; font-size: 0.8em;">YOUR LISTING</div>' : ''}
+                    </div>
+                    <h4 style="margin: 10px 0 5px 0; color: #333;">${product.makeModel}</h4>
+                    <p style="color: #666; margin: 0 0 10px 0; font-size: 0.9em;">${product.variant}</p>
+                    <div class="price-display">$${product.price}</div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin: 10px 0;">
+                        <span style="color: #666; font-size: 0.9em;">📍 ${product.distance} km</span>
+                        <span style="color: #666; font-size: 0.9em;">⭐ ${product.seller}</span>
+                    </div>
+                    <div style="margin-top: 15px; border-top: 1px solid #e9ecef; padding-top: 10px;">
+                        <div style="font-size: 0.8em; color: #666; margin-bottom: 5px;">Available Times:</div>
+                        ${product.timeRanges.map(range => 
+                            `<div class="timeslot-range">
+                                ${new Date(range.start).toLocaleDateString()} 
+                                ${new Date(range.start).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})} - 
+                                ${new Date(range.end).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                            </div>`
+                        ).join('')}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // View product details
+        function viewProduct(productId) {
+            const product = productDatabase.find(p => p.id === productId);
+            if (product) {
+                showNotification(`📱 Viewing ${product.makeModel} - $${product.price}`, 'info');
+            }
+        }
+
+        // Image upload handling
+        function handleImageUpload(event) {
+            const files = Array.from(event.target.files);
+            const preview = document.getElementById('image-preview');
+            
+            files.forEach(file => {
+                if (file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const img = document.createElement('img');
+                        img.src = e.target.result;
+                        preview.appendChild(img);
+                        uploadedImages.push(e.target.result);
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+            
+            showNotification(`📷 ${files.length} image(s) uploaded successfully!`, 'success');
+        }
+
+        // Drag and drop for images
+        document.addEventListener('DOMContentLoaded', function() {
+            const uploadArea = document.querySelector('.image-upload');
+            
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                uploadArea.addEventListener(eventName, preventDefaults, false);
+            });
+            
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            
+            ['dragenter', 'dragover'].forEach(eventName => {
+                uploadArea.addEventListener(eventName, highlight, false);
+            });
+            
+            ['dragleave', 'drop'].forEach(eventName => {
+                uploadArea.addEventListener(eventName, unhighlight, false);
+            });
+            
+            function highlight(e) {
+                uploadArea.classList.add('dragover');
+            }
+            
+            function unhighlight(e) {
+                uploadArea.classList.remove('dragover');
+            }
+            
+            uploadArea.addEventListener('drop', handleDrop, false);
+            
+            function handleDrop(e) {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                handleImageUpload({ target: { files: files } });
+            }
+        });
+
+        // Notification system
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = `notification ${type} show`;
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 4000);
+        }
+
+        // Seller listing processing - Updated for multiple listings
+        async function processSellerListing() {
+            const response = document.getElementById('seller-response');
+            response.className = 'agent-response thinking';
+            response.innerHTML = '🤖 Seller Agent is processing your listing...';
+
+            // Simulate agent processing
+            await new Promise(resolve => setTimeout(resolve, 2000));
+
+            // Collect seller data
+            const newListing = {
+                id: `listing-${Date.now()}`,
+                category: document.getElementById('seller-category').value,
+                makeModel: document.getElementById('seller-model').value,
+                variant: document.getElementById('seller-variant').value,
+                origPrice: parseInt(document.getElementById('seller-price').value),
+                location: document.getElementById('seller-location').value,
+                defects: document.getElementById('seller-defects').value,
+                images: [...uploadedImages], // Copy array
+                timeRanges: [
+                    {
+                        start: document.getElementById('seller-time1-start').value,
+                        end: document.getElementById('seller-time1-end').value
+                    },
+                    {
+                        start: document.getElementById('seller-time2-start').value,
+                        end: document.getElementById('seller-time2-end').value
+                    }
+                ].filter(t => t.start && t.end)
+            };
+
+            // Simulate condition grading and pricing
+            const conditionGrade = {
+                grade: 'good',
+                score: 0.80
+            };
+
+            // Use seller's pricing strategy
+            const priceBand = {
+                quickSale: parseInt(document.getElementById('seller-quick-sale').value) || Math.floor(newListing.origPrice * 0.6),
+                fair: parseInt(document.getElementById('seller-fair-market').value) || Math.floor(newListing.origPrice * 0.7),
+                holdOut: parseInt(document.getElementById('seller-hold-out').value) || Math.floor(newListing.origPrice * 0.8)
+            };
+
+            newListing.conditionGrade = conditionGrade;
+            newListing.priceBand = priceBand;
+
+            // Add to seller listings array
+            sellerListings.push(newListing);
+
+            // Update seller response
+            response.className = 'agent-response';
+            response.innerHTML = `
+                <h4>✅ Listing #${sellerListings.length} Processed Successfully!</h4>
+                <p><strong>Item:</strong> ${newListing.makeModel} ${newListing.variant}</p>
+                <p><strong>Condition Grade:</strong> ${conditionGrade.grade.toUpperCase()} (${conditionGrade.score})</p>
+                <p><strong>Your Pricing Strategy:</strong></p>
+                <div style="display: flex; gap: 15px; margin: 10px 0;">
+                    <div style="text-align: center;">
+                        <div style="font-weight: bold; color: #dc3545;">Quick Sale</div>
+                        <div style="font-size: 1.2em;">$${priceBand.quickSale}</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-weight: bold; color: #28a745;">Fair Market</div>
+                        <div style="font-size: 1.2em;">$${priceBand.fair}</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-weight: bold; color: #ffc107;">Hold Out</div>
+                        <div style="font-size: 1.2em;">$${priceBand.holdOut}</div>
+                    </div>
+                </div>
+                <p><strong>Images:</strong> ${newListing.images.length} uploaded</p>
+                <p><strong>Time Slots:</strong> ${newListing.timeRanges.length} available</p>
+                <p><em>✅ Listing is now live! Use "🔄 Add Another" to list more items.</em></p>
+            `;
+
+            // Add to product database for buyers to see
+            addSellerListingToDatabase(newListing);
+
+            // Update seller dashboard
+            updateSellerDashboard();
+            
+            showNotification(`📝 Listing #${sellerListings.length} created successfully!`, 'success');
+        }
+
+        // Clear seller form for adding another item
+        function clearSellerForm() {
+            // Clear all form fields
+            document.getElementById('seller-category').value = '';
+            document.getElementById('seller-model').value = '';
+            document.getElementById('seller-variant').value = '';
+            document.getElementById('seller-price').value = '';
+            document.getElementById('seller-quick-sale').value = '';
+            document.getElementById('seller-fair-market').value = '';
+            document.getElementById('seller-hold-out').value = '';
+            document.getElementById('seller-location').value = '';
+            document.getElementById('seller-defects').value = '';
+            document.getElementById('seller-time1-start').value = '';
+            document.getElementById('seller-time1-end').value = '';
+            document.getElementById('seller-time2-start').value = '';
+            document.getElementById('seller-time2-end').value = '';
+            
+            // Clear image preview
+            document.getElementById('image-preview').innerHTML = '';
+            uploadedImages = [];
+            
+            // Reset location field styling
+            const locationInput = document.getElementById('seller-location');
+            locationInput.style.background = '';
+            locationInput.style.border = '';
+            
+            // Clear response
+            document.getElementById('seller-response').innerHTML = '<em>Ready to add another item...</em>';
+            
+            showNotification('🔄 Form cleared - ready for next item!', 'info');
+        }
+
+        // Update seller dashboard to show multiple listings
+        function updateSellerDashboard() {
+            const dashboard = document.getElementById('seller-dashboard');
+            
+            if (sellerListings.length === 0) {
+                dashboard.innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: #666;">
+                        <p>📝 No active listings</p>
+                        <p style="font-size: 0.9em; margin-top: 10px;">Create your first listing to see analytics here</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            dashboard.innerHTML = `
+                <div style="margin-bottom: 20px;">
+                    <h4 style="color: #333; margin-bottom: 15px;">📊 Active Listings (${sellerListings.length})</h4>
+                    ${sellerListings.map((listing, index) => `
+                        <div style="background: white; border-radius: 10px; padding: 15px; margin-bottom: 10px; border-left: 4px solid #4facfe;">
+                            <div style="display: flex; justify-content: between; align-items: center;">
+                                <div style="flex: 1;">
+                                    <h5 style="margin: 0 0 5px 0; color: #333;">${listing.makeModel}</h5>
+                                    <p style="margin: 0; font-size: 0.9em; color: #666;">${listing.variant}</p>
+                                    <div style="margin: 8px 0;">
+                                        <span style="background: #28a745; color: white; padding: 2px 6px; border-radius: 3px; font-size: 0.8em; margin-right: 5px;">$${listing.priceBand.fair}</span>
+                                        <span style="background: #6c757d; color: white; padding: 2px 6px; border-radius: 3px; font-size: 0.8em;">${listing.conditionGrade.grade.toUpperCase()}</span>
+                                    </div>
+                                </div>
+                                <div style="text-align: right;">
+                                    <div style="font-size: 0.8em; color: #666;">📷 ${listing.images.length} images</div>
+                                    <div style="font-size: 0.8em; color: #666;">⏰ ${listing.timeRanges.length} slots</div>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+                <div style="background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%); border-radius: 10px; padding: 15px; text-align: center;">
+                    <h5 style="margin: 0 0 10px 0; color: #333;">💰 Total Portfolio Value</h5>
+                    <div style="font-size: 1.5em; font-weight: bold; color: #4facfe;">
+                        $${sellerListings.reduce((total, listing) => total + listing.priceBand.fair, 0)}
+                    </div>
+                    <div style="font-size: 0.9em; color: #666; margin-top: 5px;">
+                        Across ${sellerListings.length} active listing${sellerListings.length !== 1 ? 's' : ''}
+                    </div>
+                </div>
+            `;
+        }
+
+        // Add seller's listing to the product database - Updated for multiple listings
+        function addSellerListingToDatabase(listing) {
+            if (listing) {
+                const newProduct = {
+                    id: `seller-listing-${listing.id}`,
+                    category: listing.category,
+                    makeModel: listing.makeModel,
+                    variant: listing.variant,
+                    condition: listing.conditionGrade.grade,
+                    price: listing.priceBand.fair,
+                    seller: document.getElementById('seller-name').textContent,
+                    sellerEmail: document.getElementById('seller-email').textContent,
+                    location: listing.location || 'Palo Alto, CA',
+                    distance: 2.5, // Assume close distance for demo
+                    images: listing.images.length > 0 ? ['📱'] : ['📦'],
+                    timeRanges: listing.timeRanges,
+                    defects: listing.defects,
+                    accessories: ['As described']
+                };
+
+                // Check if already exists to avoid duplicates
+                const existingIndex = productDatabase.findIndex(p => 
+                    p.id === newProduct.id
+                );
+
+                if (existingIndex === -1) {
+                    productDatabase.unshift(newProduct); // Add to beginning
+                    
+                    // Refresh the product display if on buyer profile
+                    if (currentProfile === 'buyer') {
+                        displayProducts();
+                    }
+                }
+            }
+        }
+
+        // Buyer query processing
+        async function processBuyerQuery() {
+            const response = document.getElementById('buyer-response');
+            response.className = 'agent-response thinking';
+            response.innerHTML = '🤖 Buyer Agent is processing your search...';
+
+            await new Promise(resolve => setTimeout(resolve, 1500));
+
+            // Collect buyer data
+            buyerQuery = {
+                category: document.getElementById('buyer-category').value,
+                search: document.getElementById('buyer-search').value,
+                budgetMin: parseInt(document.getElementById('buyer-min').value) || 0,
+                budgetMax: parseInt(document.getElementById('buyer-max').value) || 999999,
+                desiredCondition: Array.from(document.getElementById('buyer-condition').selectedOptions).map(o => o.value),
+                radiusKm: parseInt(document.getElementById('buyer-radius').value) || 50,
+                timeRanges: [
+                    {
+                        start: document.getElementById('buyer-time1-start').value,
+                        end: document.getElementById('buyer-time1-end').value
+                    },
+                    {
+                        start: document.getElementById('buyer-time2-start').value,
+                        end: document.getElementById('buyer-time2-end').value
+                    }
+                ].filter(t => t.start && t.end)
+            };
+
+            // Find matches in product database
+            const matches = productDatabase.filter(product => {
+                const categoryMatch = !buyerQuery.category || product.category === buyerQuery.category;
+                const searchMatch = !buyerQuery.search || 
+                    product.makeModel.toLowerCase().includes(buyerQuery.search.toLowerCase()) ||
+                    product.variant.toLowerCase().includes(buyerQuery.search.toLowerCase());
+                const priceMatch = product.price >= buyerQuery.budgetMin && product.price <= buyerQuery.budgetMax;
+                const conditionMatch = buyerQuery.desiredCondition.length === 0 || 
+                    buyerQuery.desiredCondition.includes(product.condition);
+                const distanceMatch = product.distance <= buyerQuery.radiusKm;
+
+                return categoryMatch && searchMatch && priceMatch && conditionMatch && distanceMatch;
+            });
+
+            if (matches.length > 0) {
+                matchProposals = matches.map(product => ({
+                    ...product,
+                    score: Math.random() * 0.3 + 0.7 // Random score between 0.7-1.0
+                }));
+
+                response.className = 'agent-response';
+                response.innerHTML = `
+                    <h4>✅ ${matches.length} Match(es) Found!</h4>
+                    <p>Matcher Agent found compatible listings. Check the matches below.</p>
+                `;
+
+                displayMatches();
+                
+                // Send email notification to buyer
+                setTimeout(() => {
+                    showNotification('📧 Email sent: New matches found for your search!', 'email');
+                }, 2000);
+            } else {
+                response.className = 'agent-response';
+                response.innerHTML = `
+                    <h4>❌ No Matches Found</h4>
+                    <p>Try adjusting your search criteria, budget range, or pickup radius.</p>
+                `;
+            }
+        }
+
+        // Display matches
+        function displayMatches() {
+            const matchSection = document.getElementById('match-section');
+            const proposalsDiv = document.getElementById('match-proposals');
+            
+            matchSection.classList.remove('hidden');
+            
+            proposalsDiv.innerHTML = matchProposals.map((match, index) => `
+                <div class="match-card" onclick="selectMatchProposal(${index})" id="match-${index}">
+                    <div class="product-image">${match.images[0]}</div>
+                    <h4>${match.makeModel}</h4>
+                    <p>${match.variant}</p>
+                    <div class="price-display">$${match.price}</div>
+                    <p><strong>Condition:</strong> ${match.condition}</p>
+                    <p><strong>Distance:</strong> ${match.distance} km</p>
+                    <p><strong>Seller:</strong> ${match.seller}</p>
+                    <p><strong>Match Score:</strong> ${(match.score * 100).toFixed(0)}%</p>
+                    <div style="margin-top: 10px;">
+                        ${match.timeRanges.map(range => 
+                            `<div class="timeslot-range">
+                                ${new Date(range.start).toLocaleDateString()} 
+                                ${new Date(range.start).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})} - 
+                                ${new Date(range.end).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                            </div>`
+                        ).join('')}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Select match proposal - Updated for multiple selections
+        function selectMatchProposal(index) {
+            const card = document.getElementById(`match-${index}`);
+            const match = matchProposals[index];
+            
+            // Toggle selection
+            if (card.classList.contains('selected')) {
+                // Deselect
+                card.classList.remove('selected');
+                selectedMatches = selectedMatches.filter(m => m.id !== match.id);
+            } else {
+                // Select
+                card.classList.add('selected');
+                selectedMatches.push(match);
+            }
+            
+            // Update button state and counter
+            const negotiateBtn = document.getElementById('negotiate-btn');
+            const selectedCount = document.getElementById('selected-count');
+            
+            selectedCount.textContent = selectedMatches.length;
+            negotiateBtn.disabled = selectedMatches.length === 0;
+            
+            if (selectedMatches.length > 0) {
+                negotiateBtn.innerHTML = `🤝 Start Competitive Negotiation (${selectedMatches.length} selected)`;
+            } else {
+                negotiateBtn.innerHTML = `🤝 Start Competitive Negotiation (0 selected)`;
+            }
+        }
+
+        // Start competitive negotiation with multiple selected matches
+        async function startCompetitiveNegotiation() {
+            if (selectedMatches.length === 0) return;
+
+            // Show negotiation section
+            const negotiationSection = document.getElementById('negotiation-section');
+            negotiationSection.classList.remove('hidden');
+
+            // Update negotiation header
+            const negotiationHeader = negotiationSection.querySelector('h2');
+            negotiationHeader.textContent = `🤝 Competitive Negotiation (${selectedMatches.length} sellers)`;
+
+            // Start competitive negotiation process
+            await simulateCompetitiveNegotiation();
+        }
+
+        // Simulate competitive negotiation with multiple sellers
+        async function simulateCompetitiveNegotiation() {
+            const roundsDiv = document.getElementById('negotiation-rounds');
+            const buyerName = document.getElementById('buyer-name').textContent;
+            
+            // Clear previous rounds
+            roundsDiv.innerHTML = '';
+            
+            // Initialize negotiation data for each selected match
+            const negotiations = selectedMatches.map(match => ({
+                ...match,
+                currentOffer: match.price,
+                rounds: 0,
+                active: true,
+                finalOffer: null
+            }));
+
+            showNotification(`🤝 Starting competitive negotiation with ${negotiations.length} sellers!`, 'info');
+
+            // Round 1: Initial buyer offer to all sellers
+            const initialBuyerOffer = Math.min(...negotiations.map(n => Math.floor(n.price * 0.85)));
+            
+            await addCompetitiveRound(1, {
+                type: 'buyer_broadcast',
+                buyerOffer: initialBuyerOffer,
+                message: `${buyerName} broadcasts initial offer of $${initialBuyerOffer} to all ${negotiations.length} sellers`,
+                sellers: negotiations.map(n => n.seller)
+            });
+
+            // Round 2: Sellers respond competitively
+            const sellerResponses = negotiations.map(nego => {
+                const competitivePrice = Math.floor(nego.price * (0.88 + Math.random() * 0.08)); // 88-96% of original
+                nego.currentOffer = competitivePrice;
+                return {
+                    seller: nego.seller,
+                    product: `${nego.makeModel} ${nego.variant}`,
+                    originalPrice: nego.price,
+                    counterOffer: competitivePrice,
+                    discount: Math.round(((nego.price - competitivePrice) / nego.price) * 100)
+                };
+            });
+
+            await addCompetitiveRound(2, {
+                type: 'seller_competition',
+                message: `Sellers compete with counter-offers:`,
+                responses: sellerResponses
+            });
+
+            // Round 3: Find the best deal
+            const bestDeal = sellerResponses.reduce((best, current) => 
+                current.counterOffer < best.counterOffer ? current : best
+            );
+
+            await addCompetitiveRound(3, {
+                type: 'best_deal_selection',
+                message: `🏆 Best deal identified: ${bestDeal.seller}'s ${bestDeal.product}`,
+                winner: bestDeal,
+                savings: bestDeal.originalPrice - bestDeal.counterOffer
+            });
+
+            // Finalize the competitive deal
+            const winningMatch = negotiations.find(n => n.seller === bestDeal.seller);
+            await finalizeCompetitiveDeal(winningMatch, bestDeal.counterOffer, sellerResponses);
+        }
+
+        // Add negotiation round
+        async function addNegotiationRound(round, offers) {
+            const roundsDiv = document.getElementById('negotiation-rounds');
+            
+            const roundDiv = document.createElement('div');
+            roundDiv.className = 'negotiation-round';
+            roundDiv.innerHTML = `
+                <h4>Round ${round}</h4>
+                <p><strong>🛒 Buyer:</strong> Offers $${offers.buyerOffer}</p>
+                <p><strong>🏪 Seller:</strong> ${offers.sellerCounter === offers.buyerOffer ? 'Accepts' : 'Counters with $' + offers.sellerCounter}</p>
+                <p><em>${offers.reasoning}</em></p>
+            `;
+            
+            roundsDiv.appendChild(roundDiv);
+            await new Promise(resolve => setTimeout(resolve, 2000));
+        }
+
+        // Finalize deal
+        async function finalizeDeal(finalPrice) {
+            await new Promise(resolve => setTimeout(resolve, 1500));
+
+            const finalDealDiv = document.getElementById('final-deal');
+            finalDealDiv.style.display = 'block';
+            finalDealDiv.innerHTML = `
+                <h3>🎉 Deal Completed!</h3>
+                <h2>Final Price: $${finalPrice}</h2>
+                <p><strong>Item:</strong> ${selectedMatch.makeModel} ${selectedMatch.variant}</p>
+                <p><strong>Condition:</strong> ${selectedMatch.condition.toUpperCase()}</p>
+                <p><strong>Buyer:</strong> ${document.getElementById('buyer-name').textContent}</p>
+                <p><strong>Seller:</strong> ${selectedMatch.seller}</p>
+                <p><strong>Distance:</strong> ${selectedMatch.distance} km</p>
+                <div style="margin-top: 20px; padding: 15px; background: rgba(255,255,255,0.2); border-radius: 10px;">
+                    <p><strong>🤖 AI Negotiation Summary:</strong></p>
+                    <p>• Started at $${selectedMatch.price} (Listed Price)</p>
+                    <p>• Final agreement: $${finalPrice} (${((finalPrice/selectedMatch.price)*100).toFixed(0)}% of listed price)</p>
+                    <p>• Negotiation completed in 2 rounds</p>
+                    <p>• Both parties satisfied with the outcome</p>
+                </div>
+            `;
+
+            // Send final notifications
+            setTimeout(() => {
+                showNotification('📧 Deal confirmation sent to both buyer and seller!', 'email');
+            }, 2000);
+
+            setTimeout(() => {
+                showNotification('🎉 Transaction completed successfully!', 'success');
+            }, 4000);
+        }
+
+        // Real-time search functionality
+        function handleRealTimeSearch(searchTerm) {
+            if (currentProfile === 'buyer') {
+                displayProducts(searchTerm);
+                
+                // Show search results count
+                const filteredProducts = productDatabase.filter(product => {
+                    const searchLower = searchTerm.toLowerCase();
+                    return searchTerm.trim() === '' || 
+                           product.makeModel.toLowerCase().includes(searchLower) ||
+                           product.variant.toLowerCase().includes(searchLower) ||
+                           product.category.toLowerCase().includes(searchLower);
+                });
+                
+                if (searchTerm.trim()) {
+                    showNotification(`🔍 Found ${filteredProducts.length} products matching "${searchTerm}"`, 'info');
+                }
+            }
+        }
+
+        // Add competitive negotiation round
+        async function addCompetitiveRound(round, data) {
+            const roundsDiv = document.getElementById('negotiation-rounds');
+            
+            const roundDiv = document.createElement('div');
+            roundDiv.className = 'negotiation-round';
+            
+            if (data.type === 'buyer_broadcast') {
+                roundDiv.innerHTML = `
+                    <h4>Round ${round}: Buyer Broadcast</h4>
+                    <p><strong>🛒 ${data.message}</strong></p>
+                    <div style="margin: 10px 0; padding: 10px; background: #f8f9fa; border-radius: 5px;">
+                        <strong>Sellers notified:</strong> ${data.sellers.join(', ')}
+                    </div>
+                `;
+            } else if (data.type === 'seller_competition') {
+                roundDiv.innerHTML = `
+                    <h4>Round ${round}: Competitive Responses</h4>
+                    <p><strong>${data.message}</strong></p>
+                    <div style="display: grid; gap: 10px; margin: 15px 0;">
+                        ${data.responses.map(response => `
+                            <div style="background: #f8f9fa; padding: 10px; border-radius: 5px; border-left: 4px solid ${response.counterOffer === Math.min(...data.responses.map(r => r.counterOffer)) ? '#28a745' : '#6c757d'};">
+                                <strong>${response.seller}:</strong> ${response.product}<br>
+                                <span style="text-decoration: line-through; color: #666;">$${response.originalPrice}</span> → 
+                                <strong style="color: #28a745;">$${response.counterOffer}</strong> 
+                                <span style="color: #dc3545;">(${response.discount}% off)</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            } else if (data.type === 'best_deal_selection') {
+                roundDiv.innerHTML = `
+                    <h4>Round ${round}: Best Deal Selection</h4>
+                    <p><strong>${data.message}</strong></p>
+                    <div style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; padding: 15px; border-radius: 10px; margin: 15px 0;">
+                        <h5 style="margin: 0 0 10px 0;">🏆 Winning Offer</h5>
+                        <p style="margin: 0;"><strong>Product:</strong> ${data.winner.product}</p>
+                        <p style="margin: 0;"><strong>Final Price:</strong> $${data.winner.counterOffer}</p>
+                        <p style="margin: 0;"><strong>Your Savings:</strong> $${data.savings}</p>
+                    </div>
+                `;
+            }
+            
+            roundsDiv.appendChild(roundDiv);
+            await new Promise(resolve => setTimeout(resolve, 2500));
+        }
+
+        // Finalize competitive deal
+        async function finalizeCompetitiveDeal(winningMatch, finalPrice, allResponses) {
+            await new Promise(resolve => setTimeout(resolve, 1500));
+
+            const finalDealDiv = document.getElementById('final-deal');
+            finalDealDiv.style.display = 'block';
+            finalDealDiv.innerHTML = `
+                <h3>🎉 Competitive Deal Completed!</h3>
+                <h2>Final Price: $${finalPrice}</h2>
+                <p><strong>Item:</strong> ${winningMatch.makeModel} ${winningMatch.variant}</p>
+                <p><strong>Condition:</strong> ${winningMatch.condition.toUpperCase()}</p>
+                <p><strong>Buyer:</strong> ${document.getElementById('buyer-name').textContent}</p>
+                <p><strong>Winning Seller:</strong> ${winningMatch.seller}</p>
+                <p><strong>Distance:</strong> ${winningMatch.distance} km</p>
+                <div style="margin-top: 20px; padding: 15px; background: rgba(255,255,255,0.2); border-radius: 10px;">
+                    <p><strong>🤖 Competitive Negotiation Summary:</strong></p>
+                    <p>• Started with ${selectedMatches.length} competing sellers</p>
+                    <p>• Original price: $${winningMatch.price}</p>
+                    <p>• Final agreement: $${finalPrice} (${((finalPrice/winningMatch.price)*100).toFixed(0)}% of listed price)</p>
+                    <p>• Your savings: $${winningMatch.price - finalPrice}</p>
+                    <p>• Best deal achieved through competitive bidding!</p>
+                </div>
+                <div style="margin-top: 15px; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 8px;">
+                    <h6 style="margin: 0 0 8px 0;">All Competitive Offers:</h6>
+                    ${allResponses.map(response => `
+                        <div style="font-size: 0.9em; margin: 3px 0;">
+                            ${response.seller}: $${response.counterOffer} ${response.seller === winningMatch.seller ? '🏆' : ''}
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+
+            // Send notifications to all parties
+            setTimeout(() => {
+                showNotification(`📧 Winner notification sent to ${winningMatch.seller}!`, 'email');
+            }, 1000);
+
+            setTimeout(() => {
+                showNotification('📧 Deal confirmation sent to buyer!', 'email');
+            }, 2000);
+
+            setTimeout(() => {
+                showNotification('📧 Thank you messages sent to other sellers!', 'email');
+            }, 3000);
+
+            setTimeout(() => {
+                showNotification('🎉 Competitive negotiation completed successfully!', 'success');
+            }, 4000);
+        }
+
+        // Enhanced email communication system
+        async function sendEmailNotification(type, recipient, details) {
+            const emailTemplates = {
+                match_found: {
+                    subject: `🎯 New matches found for your search: ${details.searchTerm}`,
+                    body: `Hi ${recipient.name},\n\nGreat news! We found ${details.matchCount} products matching your search for "${details.searchTerm}".\n\nTop matches:\n${details.matches.map(m => `• ${m.makeModel} - $${m.price} (${m.condition})`).join('\n')}\n\nView all matches in your dashboard.\n\nBest regards,\nMarketplace Team`
+                },
+                seller_interest: {
+                    subject: `🤝 Buyer interested in your ${details.productName}`,
+                    body: `Hi ${recipient.name},\n\n${details.buyerName} (${details.buyerEmail}) is interested in your ${details.productName} listed for $${details.price}.\n\nBuyer details:\n• Location: ${details.buyerLocation}\n• Verified: ${details.buyerVerified}\n\nThey're ready to negotiate. Check your dashboard to respond.\n\nBest regards,\nMarketplace Team`
+                },
+                deal_completed: {
+                    subject: `🎉 Deal completed: ${details.productName}`,
+                    body: `Congratulations!\n\nYour deal for ${details.productName} has been completed:\n• Final price: $${details.finalPrice}\n• Buyer: ${details.buyerName}\n• Seller: ${details.sellerName}\n\nNext steps:\n1. Coordinate pickup time\n2. Complete the transaction\n3. Leave feedback\n\nThank you for using our marketplace!\n\nBest regards,\nMarketplace Team`
+                }
+            };
+
+            const template = emailTemplates[type];
+            if (template) {
+                // Simulate email sending
+                await new Promise(resolve => setTimeout(resolve, 500));
+                
+                console.log(`📧 Email sent to ${recipient.email}:`);
+                console.log(`Subject: ${template.subject}`);
+                console.log(`Body: ${template.body}`);
+                
+                return true;
+            }
+            return false;
+        }
+
+        // Initialize demo with sample data
+        window.onload = function() {
+            // Set some default values for easier testing
+            document.getElementById('seller-category').value = 'electronics';
+            document.getElementById('seller-model').value = 'iPhone 14 Pro';
+            document.getElementById('seller-variant').value = '256GB Space Black';
+            document.getElementById('seller-price').value = '1099';
+            document.getElementById('seller-defects').value = 'Minor scratches on screen protector, small dent on bottom corner';
+            
+            document.getElementById('buyer-category').value = 'electronics';
+            document.getElementById('buyer-search').value = 'iPhone 14 Pro';
+            document.getElementById('buyer-min').value = '600';
+            document.getElementById('buyer-max').value = '800';
+            document.getElementById('buyer-radius').value = '15';
+            
+            // Set buyer condition preferences
+            const conditionSelect = document.getElementById('buyer-condition');
+            conditionSelect.options[1].selected = true; // "like-new"
+            conditionSelect.options[2].selected = true; // "good"
+            
+            // Display initial products
+            displayProducts();
+        };
+    </script>
+</body>
+</html>

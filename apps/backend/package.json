@@ -1,0 +1,20 @@
+{
+  "name": "@ai-marketplace/backend",
+  "version": "1.0.0",
+  "description": "AI Agent Marketplace Backend with Convex",
+  "main": "index.js",
+  "scripts": {
+    "dev": "convex dev",
+    "build": "convex deploy",
+    "convex:dev": "convex dev",
+    "convex:deploy": "convex deploy",
+    "import:sample-data": "convex import --table users sampleData/users.jsonl && convex import --table agents sampleData/agents.jsonl && convex import --table deals sampleData/deals.jsonl"
+  },
+  "dependencies": {
+    "convex": "^1.14.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
+  }
+}

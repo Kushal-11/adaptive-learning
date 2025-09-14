@@ -326,6 +326,25 @@ export default function Home() {
     return reasons.slice(0, 3); // Show top 3 reasons
   };
 
+  const handleStartNegotiation = (product: any) => {
+    showNotification(`🤝 Starting negotiation for ${product.makeModel}! AI agent will handle the process.`, "success");
+    setTimeout(() => {
+      showNotification(`💬 Negotiation in progress... Current offer: $${product.currentPrice - 50}`, "info");
+    }, 2000);
+    setTimeout(() => {
+      showNotification(`✅ Negotiation successful! Final price: $${product.currentPrice - 75}`, "success");
+    }, 5000);
+  };
+
+  const handleContactSeller = (product: any) => {
+    const seller = users.find(u => u._id === product.sellerId);
+    const sellerName = seller ? seller.name : "Seller";
+    showNotification(`📧 Contacting ${sellerName} about ${product.makeModel}. Message sent!`, "success");
+    setTimeout(() => {
+      showNotification(`📱 ${sellerName} responded! They're available for pickup today.`, "info");
+    }, 3000);
+  };
+
   const getFilteredProducts = () => {
     return products.filter(product => {
       const matchesSearch = searchTerm === "" || 
@@ -628,44 +647,6 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Autonomous AI Agent Controls */}
-        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 m-6 rounded-xl border border-blue-200/50 shadow-lg transition-all duration-500 hover:shadow-xl">
-          <h3 className="text-xl font-bold mb-4 flex items-center gap-3 text-gray-800">
-            Autonomous Negotiator Agent
-            <span className="bg-slate-700 text-white text-sm px-3 py-1 rounded-full animate-pulse shadow-lg">ACTIVE</span>
-          </h3>
-          <p className="text-gray-600 mb-6 leading-relaxed">
-            The AI negotiator agent runs in the background, automatically matching buyers with sellers and negotiating win-win deals.
-          </p>
-          <div className="flex flex-wrap gap-4 items-center justify-center">
-            <button 
-              className="bg-slate-700 hover:bg-slate-800 text-white px-6 py-3 rounded-lg transition-all duration-300 font-medium shadow-lg hover:shadow-xl transform hover:scale-105"
-              onClick={() => {
-                showNotification("Negotiator agent triggered! Matching buyers and sellers...", "info");
-                setTimeout(() => {
-                  showNotification("Agent processed 3 matches, 1 deal completed!", "success");
-                }, 3000);
-              }}
-            >
-              Trigger Agent
-            </button>
-            <button 
-              className="bg-slate-600 hover:bg-slate-700 text-white px-6 py-3 rounded-lg transition-all duration-300 font-medium shadow-lg hover:shadow-xl transform hover:scale-105"
-              onClick={() => showNotification("Agent Status: 5 active negotiations, 12 completed deals today", "info")}
-            >
-              Agent Status
-            </button>
-            <button 
-              className="bg-slate-500 hover:bg-slate-600 text-white px-6 py-3 rounded-lg transition-all duration-300 font-medium shadow-lg hover:shadow-xl transform hover:scale-105"
-              onClick={() => showNotification("Email notifications sent to 4 users for completed deals", "success")}
-            >
-              View Notifications
-            </button>
-            <div className="text-sm text-gray-700 bg-white px-4 py-2 rounded-lg border border-gray-200 font-semibold transition-all duration-300">
-              Match Rate: <span className="text-slate-700">{stats.matchRate}%</span> | Avg Savings: <span className="text-slate-700">${stats.avgSavings}</span>
-            </div>
-          </div>
-        </div>
 
         {/* Profile Selector */}
         {!profile ? (
@@ -1182,10 +1163,16 @@ export default function Home() {
 
                             {/* Action Buttons */}
                             <div className="flex gap-3">
-                              <button className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg font-medium transition-all duration-300 transform hover:scale-105">
+                              <button 
+                                onClick={() => handleStartNegotiation(match)}
+                                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg font-medium transition-all duration-300 transform hover:scale-105"
+                              >
                                 Start Negotiation
                               </button>
-                              <button className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded-lg font-medium transition-all duration-300 transform hover:scale-105">
+                              <button 
+                                onClick={() => handleContactSeller(match)}
+                                className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded-lg font-medium transition-all duration-300 transform hover:scale-105"
+                              >
                                 Contact Seller
                               </button>
                             </div>

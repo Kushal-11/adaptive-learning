@@ -147,7 +147,7 @@ export default function Home() {
     
     const mockAnalyses = [
       {
-        category: "electronics",
+        category: "Electronics - Smartphones",
         condition: "good",
         confidence: 0.92,
         description: "iPhone 14 Pro 256GB in good condition with minor wear on edges and back. Screen is pristine with no cracks. Battery health appears good based on visual inspection.",
@@ -167,7 +167,7 @@ export default function Home() {
         }
       },
       {
-        category: "electronics", 
+        category: "Electronics - Laptops", 
         condition: "like-new",
         confidence: 0.88,
         description: "MacBook Air M2 13-inch in excellent condition with minimal usage signs. No visible scratches or dents. Original packaging and accessories included.",
@@ -185,6 +185,46 @@ export default function Home() {
           marketDemand: -49,
           finalEstimate: 1050
         }
+      },
+      {
+        category: "Home & Garden - Appliances",
+        condition: "good",
+        confidence: 0.85,
+        description: "Dyson V15 cordless vacuum in good working condition with all attachments. Shows normal wear from regular use.",
+        suggestedPrice: 320,
+        marketComparison: {
+          averagePrice: 340,
+          priceRange: { min: 280, max: 400 },
+          similarListings: 23,
+          marketTrend: 'stable'
+        },
+        defectsDetected: ["Minor scuff marks on body", "Slight wear on trigger"],
+        valuationBreakdown: {
+          baseValue: 450,
+          conditionAdjustment: -100,
+          marketDemand: -30,
+          finalEstimate: 320
+        }
+      },
+      {
+        category: "Fashion & Accessories - Luxury",
+        condition: "like-new",
+        confidence: 0.90,
+        description: "Louis Vuitton Neverfull MM in Damier Ebene canvas, barely used with original dust bag and receipt.",
+        suggestedPrice: 1200,
+        marketComparison: {
+          averagePrice: 1250,
+          priceRange: { min: 1100, max: 1400 },
+          similarListings: 15,
+          marketTrend: 'rising'
+        },
+        defectsDetected: ["Very minor corner wear"],
+        valuationBreakdown: {
+          baseValue: 1500,
+          conditionAdjustment: -250,
+          marketDemand: -50,
+          finalEstimate: 1200
+        }
       }
     ];
     
@@ -194,7 +234,7 @@ export default function Home() {
     // Auto-fill form fields
     const form = document.querySelector('form') as HTMLFormElement;
     if (form) {
-      const categorySelect = form.querySelector('select[name="category"]') as HTMLSelectElement;
+      const categoryInput = form.querySelector('input[name="category"]') as HTMLInputElement;
       const conditionSelect = form.querySelector('select[name="condition"]') as HTMLSelectElement;
       const descriptionTextarea = form.querySelector('textarea[name="description"]') as HTMLTextAreaElement;
       const defectsTextarea = form.querySelector('textarea[name="defects"]') as HTMLTextAreaElement;
@@ -202,7 +242,7 @@ export default function Home() {
       const quickSalePriceInput = form.querySelector('input[name="quickSalePrice"]') as HTMLInputElement;
       const holdOutPriceInput = form.querySelector('input[name="holdOutPrice"]') as HTMLInputElement;
       
-      if (categorySelect) categorySelect.value = randomAnalysis.category;
+      if (categoryInput) categoryInput.value = randomAnalysis.category;
       if (conditionSelect) conditionSelect.value = randomAnalysis.condition;
       if (descriptionTextarea) descriptionTextarea.value = randomAnalysis.description;
       if (defectsTextarea) defectsTextarea.value = randomAnalysis.defectsDetected.join(", ");
@@ -226,91 +266,108 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-500 to-purple-600 p-4">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 p-4">
       {/* Notification */}
       {notification && (
-        <div className={`fixed top-4 right-4 px-6 py-3 rounded-lg text-white z-50 transition-transform ${
-          notification.type === 'success' ? 'bg-green-500' : 
-          notification.type === 'error' ? 'bg-red-500' : 'bg-blue-500'
+        <div className={`fixed top-6 right-6 px-6 py-4 rounded-xl text-white z-50 transition-all duration-300 transform shadow-2xl backdrop-blur-sm ${
+          notification.type === 'success' ? 'bg-emerald-500/90 border border-emerald-400/50' : 
+          notification.type === 'error' ? 'bg-red-500/90 border border-red-400/50' : 'bg-blue-500/90 border border-blue-400/50'
         }`}>
-          {notification.message}
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+            {notification.message}
+          </div>
         </div>
       )}
 
-      <div className="max-w-7xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden">
+      <div className="max-w-7xl mx-auto bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 overflow-hidden">
         {/* Header */}
-        <header className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6">
-          <div className="flex justify-between items-center">
-            <div>
-              <div className="flex items-center gap-3 mb-2">
-                <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
-                  <span className="text-white font-bold text-xl">BB</span>
+        <header className="bg-gradient-to-r from-slate-900 via-blue-900 to-indigo-900 text-white p-8 relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-purple-600/20"></div>
+          <div className="relative z-10">
+            <div className="flex justify-between items-center">
+              <div>
+                <div className="flex items-center gap-4 mb-3">
+                  <div className="w-16 h-16 bg-gradient-to-br from-blue-400 to-purple-500 backdrop-blur-sm rounded-2xl flex items-center justify-center shadow-lg border border-white/20">
+                    <span className="text-white font-bold text-2xl">BB</span>
+                  </div>
+                  <div>
+                    <h1 className="text-5xl font-bold bg-gradient-to-r from-white to-blue-100 bg-clip-text text-transparent">
+                      🤖 BuyBot Multi-Agent Marketplace
+                    </h1>
+                    <p className="text-blue-200/80 text-lg font-medium mt-1">AI Agents with Convex Database - Modern UI Experience</p>
+                  </div>
                 </div>
-                <h1 className="text-4xl font-bold">🤖 BuyBot Multi-Agent Marketplace</h1>
               </div>
-              <p className="text-blue-100">AI Agents with Convex Database - Modern UI Experience</p>
-            </div>
-            <div className="flex gap-3">
-              <a
-                href="/auth"
-                className="bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-lg transition-colors font-medium"
-              >
-                👤 Sign In
-              </a>
-              <a
-                href="/auth"
-                className="bg-white text-blue-600 hover:bg-gray-100 px-4 py-2 rounded-lg transition-colors font-medium"
-              >
-                📝 Sign Up
-              </a>
+              <div className="flex gap-3">
+                <a
+                  href="/auth"
+                  className="bg-white/10 hover:bg-white/20 text-white px-6 py-3 rounded-xl transition-all duration-300 font-medium backdrop-blur-sm border border-white/20 hover:border-white/30 shadow-lg"
+                >
+                  👤 Sign In
+                </a>
+                <a
+                  href="/auth"
+                  className="bg-white text-slate-900 hover:bg-blue-50 px-6 py-3 rounded-xl transition-all duration-300 font-medium shadow-lg hover:shadow-xl"
+                >
+                  📝 Sign Up
+                </a>
+              </div>
             </div>
           </div>
         </header>
 
         {/* Connection Status */}
-        <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-4 border-b-2 border-blue-200">
-          <div className="flex items-center justify-center gap-3">
-            <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
-            <span className="font-semibold">Status: Connected to Convex Database</span>
-            <span className="text-sm text-gray-600">Real-time data synchronization enabled</span>
+        <div className="bg-gradient-to-r from-emerald-50 via-blue-50 to-indigo-50 p-6 border-b border-slate-200/50">
+          <div className="flex items-center justify-center gap-4">
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 bg-emerald-500 rounded-full animate-pulse shadow-lg"></div>
+              <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse delay-75"></div>
+              <div className="w-1 h-1 bg-emerald-300 rounded-full animate-pulse delay-150"></div>
+            </div>
+            <span className="font-semibold text-slate-800">Status: Connected to Convex Database</span>
+            <span className="text-sm text-slate-600 bg-white/60 px-3 py-1 rounded-full">Real-time data synchronization enabled</span>
           </div>
         </div>
 
         {/* Database Controls */}
-        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 m-4">
-          <h3 className="text-lg font-bold mb-3">🗄️ Database Management</h3>
-          <div className="flex flex-wrap gap-3 items-center justify-center">
+        <div className="bg-gradient-to-r from-amber-50 via-orange-50 to-yellow-50 border border-amber-200/50 rounded-2xl p-6 m-6 shadow-lg backdrop-blur-sm">
+          <h3 className="text-xl font-bold mb-4 text-slate-800 flex items-center gap-2">
+            🗄️ Database Management
+            <div className="h-px bg-gradient-to-r from-amber-300 to-transparent flex-1 ml-4"></div>
+          </h3>
+          <div className="flex flex-wrap gap-4 items-center justify-center">
             <button 
-              className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors"
+              className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-6 py-3 rounded-xl transition-all duration-300 font-medium shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
               onClick={() => showNotification("Data refreshed!", "success")}
             >
               🔄 Refresh Data
             </button>
             <button 
-              className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition-colors"
+              className="bg-gradient-to-r from-slate-500 to-slate-600 hover:from-slate-600 hover:to-slate-700 text-white px-6 py-3 rounded-xl transition-all duration-300 font-medium shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
               onClick={() => showNotification("Database seeded with sample data!", "success")}
             >
               🌱 Seed Database
             </button>
-            <div className="text-sm text-gray-600">
-              Products: <span className="font-semibold">{products.length}</span> |
-              Users: <span className="font-semibold">{users.length}</span>
+            <div className="text-sm text-slate-700 bg-white/70 px-4 py-2 rounded-xl backdrop-blur-sm border border-white/50">
+              Products: <span className="font-bold text-blue-600">{products.length}</span> |
+              Users: <span className="font-bold text-emerald-600">{users.length}</span>
             </div>
           </div>
         </div>
 
         {/* Autonomous AI Agent Controls */}
-        <div className="bg-gradient-to-r from-purple-50 to-pink-50 border-2 border-purple-200 rounded-lg p-4 m-4">
-          <h3 className="text-lg font-bold mb-3 flex items-center gap-2">
+        <div className="bg-gradient-to-r from-violet-50 via-purple-50 to-fuchsia-50 border border-violet-200/50 rounded-2xl p-6 m-6 shadow-lg backdrop-blur-sm">
+          <h3 className="text-xl font-bold mb-4 flex items-center gap-3 text-slate-800">
             🤖 Autonomous Negotiator Agent
-            <span className="bg-green-500 text-white text-xs px-2 py-1 rounded-full animate-pulse">ACTIVE</span>
+            <span className="bg-gradient-to-r from-emerald-500 to-green-500 text-white text-sm px-3 py-1 rounded-full animate-pulse shadow-lg border border-emerald-400/50">ACTIVE</span>
           </h3>
-          <p className="text-sm text-gray-600 mb-3">
+          <p className="text-slate-600 mb-6 leading-relaxed">
             The AI negotiator agent runs in the background, automatically matching buyers with sellers and negotiating win-win deals.
           </p>
-          <div className="flex flex-wrap gap-3 items-center justify-center">
+          <div className="flex flex-wrap gap-4 items-center justify-center">
             <button 
-              className="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg transition-colors"
+              className="bg-gradient-to-r from-purple-500 to-violet-600 hover:from-purple-600 hover:to-violet-700 text-white px-6 py-3 rounded-xl transition-all duration-300 font-medium shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
               onClick={() => {
                 showNotification("🤖 Negotiator agent triggered! Matching buyers and sellers...", "info");
                 setTimeout(() => {
@@ -321,69 +378,71 @@ export default function Home() {
               🚀 Trigger Agent
             </button>
             <button 
-              className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors"
+              className="bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white px-6 py-3 rounded-xl transition-all duration-300 font-medium shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
               onClick={() => showNotification("📊 Agent Status: 5 active negotiations, 12 completed deals today", "info")}
             >
               📊 Agent Status
             </button>
             <button 
-              className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg transition-colors"
+              className="bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white px-6 py-3 rounded-xl transition-all duration-300 font-medium shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
               onClick={() => showNotification("📧 Email notifications sent to 4 users for completed deals", "success")}
             >
               📧 View Notifications
             </button>
-            <div className="text-sm text-purple-600 font-semibold">
-              🎯 Match Rate: 87% | 💰 Avg Savings: $127
+            <div className="text-sm text-slate-700 bg-white/70 px-4 py-2 rounded-xl backdrop-blur-sm border border-white/50 font-semibold">
+              🎯 Match Rate: <span className="text-purple-600">87%</span> | 💰 Avg Savings: <span className="text-emerald-600">$127</span>
             </div>
           </div>
         </div>
 
         {/* Profile Selector */}
         {!profile ? (
-          <div className="p-8 text-center">
-            <h2 className="text-3xl font-bold mb-6">Choose Your Profile</h2>
-            <div className="flex gap-6 justify-center">
+          <div className="p-12 text-center">
+            <h2 className="text-4xl font-bold mb-8 bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">Choose Your Profile</h2>
+            <div className="flex gap-8 justify-center">
               <button
                 onClick={() => setProfile("buyer")}
-                className="bg-blue-500 hover:bg-blue-600 text-white px-8 py-4 rounded-xl transition-all transform hover:scale-105 shadow-lg"
+                className="group bg-gradient-to-br from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-12 py-6 rounded-2xl transition-all duration-300 transform hover:scale-105 shadow-2xl hover:shadow-blue-500/25 border border-blue-400/20"
               >
-                🛒 Buyer Profile
+                <div className="text-4xl mb-2 group-hover:scale-110 transition-transform">🛒</div>
+                <div className="text-xl font-bold">Buyer Profile</div>
               </button>
               <button
                 onClick={() => setProfile("seller")}
-                className="bg-green-500 hover:bg-green-600 text-white px-8 py-4 rounded-xl transition-all transform hover:scale-105 shadow-lg"
+                className="group bg-gradient-to-br from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white px-12 py-6 rounded-2xl transition-all duration-300 transform hover:scale-105 shadow-2xl hover:shadow-emerald-500/25 border border-emerald-400/20"
               >
-                🏪 Seller Profile
+                <div className="text-4xl mb-2 group-hover:scale-110 transition-transform">🏪</div>
+                <div className="text-xl font-bold">Seller Profile</div>
               </button>
             </div>
           </div>
         ) : (
           <div className="p-6">
             {/* Profile Switch Buttons */}
-            <div className="flex gap-4 mb-6 justify-center">
+            <div className="flex gap-4 mb-8 justify-center">
               <button
                 onClick={() => setProfile("buyer")}
-                className={`px-6 py-3 rounded-lg font-semibold transition-colors ${
+                className={`px-8 py-4 rounded-xl font-semibold transition-all duration-300 shadow-lg ${
                   profile === "buyer" 
-                    ? "bg-blue-500 text-white" 
-                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                    ? "bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-blue-500/25 transform scale-105" 
+                    : "bg-white/80 text-slate-700 hover:bg-white hover:shadow-xl backdrop-blur-sm border border-slate-200/50"
                 }`}
               >
                 🛒 Buyer Profile
               </button>
               <button
                 onClick={() => setProfile("seller")}
-                className={`px-6 py-3 rounded-lg font-semibold transition-colors ${
+                className={`px-8 py-4 rounded-xl font-semibold transition-all duration-300 shadow-lg ${
                   profile === "seller" 
-                    ? "bg-green-500 text-white" 
-                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                    ? "bg-gradient-to-r from-emerald-500 to-green-600 text-white shadow-emerald-500/25 transform scale-105" 
+                    : "bg-white/80 text-slate-700 hover:bg-white hover:shadow-xl backdrop-blur-sm border border-slate-200/50"
                 }`}
               >
                 🏪 Seller Profile
               </button>
               <button
                 onClick={() => setProfile(null)}
-                className="px-6 py-3 rounded-lg font-semibold bg-gray-500 text-white hover:bg-gray-600 transition-colors"
+                className="px-8 py-4 rounded-xl font-semibold bg-gradient-to-r from-slate-500 to-slate-600 text-white hover:from-slate-600 hover:to-slate-700 transition-all duration-300 shadow-lg hover:shadow-xl"
               >
                 ← Back
               </button>
@@ -393,28 +452,33 @@ export default function Home() {
             {profile === "seller" && (
               <div className="grid lg:grid-cols-2 gap-6">
                 {/* Seller Panel */}
-                <div className="bg-gray-50 rounded-xl p-6 border-2 border-green-200">
-                  <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
-                    <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+                <div className="bg-gradient-to-br from-emerald-50 to-green-50 rounded-2xl p-8 border border-emerald-200/50 shadow-xl backdrop-blur-sm">
+                  <h2 className="text-3xl font-bold mb-6 flex items-center gap-3 text-slate-800">
+                    <div className="w-4 h-4 bg-emerald-500 rounded-full animate-pulse shadow-lg"></div>
                     🏪 Seller Profile
                   </h2>
 
                   {/* Seller Profile Info */}
-                  <div className="bg-white rounded-lg p-4 mb-6 border-l-4 border-green-500">
-                    <h4 className="font-bold mb-2">👤 Demo Seller</h4>
-                    <p><strong>Name:</strong> Demo Seller</p>
-                    <p><strong>Email:</strong> seller@example.com</p>
-                    <p><strong>Location:</strong> Palo Alto, CA</p>
-                    <p><strong>Rating:</strong> ⭐⭐⭐⭐⭐ (4.8/5)</p>
-                    <p><strong>Verified:</strong> ✅ Email, Phone & ID</p>
+                  <div className="bg-white/80 backdrop-blur-sm rounded-xl p-6 mb-8 border-l-4 border-emerald-500 shadow-lg">
+                    <h4 className="font-bold mb-3 text-lg text-slate-800 flex items-center gap-2">
+                      👤 Demo Seller
+                      <div className="h-px bg-gradient-to-r from-emerald-300 to-transparent flex-1 ml-3"></div>
+                    </h4>
+                    <div className="space-y-2 text-slate-700">
+                      <p><strong>Name:</strong> Demo Seller</p>
+                      <p><strong>Email:</strong> seller@example.com</p>
+                      <p><strong>Location:</strong> Palo Alto, CA</p>
+                      <p><strong>Rating:</strong> ⭐⭐⭐⭐⭐ (4.8/5)</p>
+                      <p><strong>Verified:</strong> ✅ Email, Phone & ID</p>
+                    </div>
                   </div>
 
-                  <div>
-                    <label className="block font-semibold mb-2">Select Seller Account</label>
+                  <div className="mb-6">
+                    <label className="block font-semibold mb-3 text-slate-800">Select Seller Account</label>
                     <select 
                       value={selectedSeller}
                       onChange={(e) => handleSellerChange(e.target.value)}
-                      className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-green-500 focus:outline-none"
+                      className="w-full p-4 border border-slate-200 rounded-xl focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none bg-white/80 backdrop-blur-sm shadow-sm transition-all duration-200"
                     >
                       <option value="">Choose existing seller...</option>
                       {users.filter(u => u.role === 'seller').map(seller => (
@@ -485,13 +549,16 @@ export default function Home() {
                     <div className="grid grid-cols-2 gap-3">
                       <div>
                         <label className="block font-semibold mb-2">Category</label>
-                        <select name="category" required className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-green-500 focus:outline-none">
-                          <option value="">Select category...</option>
-                          <option value="electronics">Electronics</option>
-                          <option value="appliances">Appliances</option>
-                          <option value="furniture">Furniture</option>
-                          <option value="clothing">Clothing</option>
-                        </select>
+                        <input
+                          type="text"
+                          name="category"
+                          placeholder="e.g., Electronics - Smartphones, Home & Garden - Appliances"
+                          required
+                          className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-green-500 focus:outline-none"
+                        />
+                        <div className="text-xs text-gray-500 mt-1">
+                          💡 Popular: Electronics - Smartphones/Laptops/Gaming, Home & Garden - Appliances/Tools, Fashion & Accessories - Clothing/Jewelry/Luxury, Sports & Outdoors - Fitness/Camping, Automotive - Parts/Accessories, Books & Media - Textbooks/Collectibles
+                        </div>
                       </div>
                       <div>
                         <label className="block font-semibold mb-2">Condition</label>
@@ -664,14 +731,15 @@ export default function Home() {
                   {/* Search Form */}
                   <div className="space-y-4">
                     <div>
-                      <label className="block font-semibold mb-2">Looking For</label>
-                      <select className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none">
-                        <option value="">Select category...</option>
-                        <option value="electronics">Electronics</option>
-                        <option value="appliances">Appliances</option>
-                        <option value="furniture">Furniture</option>
-                        <option value="clothing">Clothing</option>
-                      </select>
+                      <label className="block font-semibold mb-2">Looking For (Category)</label>
+                      <input
+                        type="text"
+                        placeholder="e.g., Electronics - Smartphones, Home & Garden, Fashion"
+                        className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
+                      />
+                      <div className="text-xs text-gray-500 mt-1">
+                        💡 Browse: Electronics - Smartphones/Laptops/Gaming/Audio, Home & Garden - Appliances/Furniture/Tools/Decor, Fashion & Accessories - Clothing/Shoes/Jewelry/Luxury, Sports & Outdoors - Fitness/Camping/Cycling, Automotive - Parts/Accessories/Tools, Books & Media - Textbooks/Comics/Vinyl, Art & Collectibles - Vintage/Antiques/Memorabilia
+                      </div>
                     </div>
 
                     <div>
